@@ -48,7 +48,9 @@ def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
     os.chdir(script_dir)
     
-    filename = "main"
+    filename = sys.argv[1] if len(sys.argv) > 1 else "main"
+    if filename.endswith(".tex"):
+        filename = filename[:-4]
     
     # Check if PDF is locked before starting
     check_pdf_lock(filename)
