@@ -1,5 +1,51 @@
 \section{Introduction}
-% Background
-% Problem statement
-% Motivation
-% Contributions
+% TODO: port references.bib dari docs/PAPER.md (cite keys di bawah mengacu ke sana).
+
+Generative autoregressive language models are increasingly deployed for
+structured enterprise decisions: payment fraud routing, customer inquiry
+triaging, and policy enforcement. In this setup the model is prompted to emit
+its decision as a formatted payload such as JSON or XML. This \textit{System
+Two} paradigm carries three operational costs. First, latency: emitting a
+formatted decision requires $O(T)$ sequential decoding steps, spending GPU
+cycles on boilerplate punctuation while holding the key-value cache. Second,
+syntactic reliability: even with constrained decoding, autoregressive sampling
+retains a non-zero probability of malformed output. Third, epistemic
+pathology: preference-based post-training rewards confident answers, so raw
+output scores are systematically overconfident and unusable for risk-controlled
+automation~\cite{guo2017calibration}.
+
+\textit{System One} decision models separate structured judgment from text
+generation: an input state $S$ and a typed question schema $Q$ are mapped
+directly to a joint probability distribution over candidate options in a
+single forward pass ($O(1)$ decoding steps), with no free-form text and no
+output parsing. The paradigm was pioneered by TypeSafe Jev (closed API),
+Cloudflare Clef~\cite{cloudflare2025clef}, Convai Laya, and the open Unsloth
+training recipe~\cite{unsloth2026decision}. Existing work concentrates on dense
+bidirectional encoders or decoder-only transformers; hybrid
+convolution-attention backbones at sub-billion scale, attractive for edge
+deployment, remain an unexplored substrate for decision heads. We study
+LiquidAI LFM2.5-350M~\cite{liquidai2025lfm}, a 350M hybrid model combining
+gated-convolution blocks with grouped-query attention.
+
+Rather than proposing a new architecture (our decision head follows the Clef
+design), this paper asks which \textit{training recipe} choices make small
+decision models transfer: (RQ1) does schema augmentation (option renaming,
+description paraphrasing, derived questions) produce transfer to unseen
+decision taxonomies; (RQ2) how does data-mixture composition trade off across
+task groups under fixed 350M capacity; with calibrated probabilities and
+selective-classification coverage evaluated throughout.
+
+Our contributions are: (1) an adaptation recipe and open artifact,
+\texttt{itsdevice/lfm-2.5-350m-decs1}; (2) controlled experiments ---
+multi-seed runs, leave-one-taxonomy-out evaluation, and token-matched
+augmentation ablations [PENDING run \#1--8, tracker
+docs/RECOMMENDATION.md \S6.4]; (3) a calibration evaluation (proper scoring
+rules plus post-hoc temperature scaling) with selective coverage at fixed
+risk; and (4) a capacity-frontier analysis against a 0.8B dense baseline run
+under the identical protocol [PENDING run \#8]. This is an empirical systems
+paper: every comparative claim traces to a logged run, and result numbers
+enter this section only after the tracker turns green.
+
+The remainder of the paper covers related work, the architecture and training
+methodology, the dataset composition and augmentation pipeline, the
+experimental results, and deployment discussion with limitations.
