@@ -267,7 +267,7 @@ Eval per kernel: eval v7 dengan `TRAIN_OUT` = out-u train; tempel `run_meta.json
 
 | # | Kernel | Env kunci | Status | Kernel link | Hasil |
 |---|---|---|---|---|---|
-| 1 | v6-resep seed 1 | `SEED=3407` | ongoing (smoke v2 COMPLETE: 60 step loss 1.24, internal 52% n=141; full RUNNING) | smoke: https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-smoke · full: https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-full | smoke hijau, full ~4 jam |
+| 1 | v6-resep seed 1 | `SEED=3407` | selesai (3ep full 2.25 jam, train_loss 0.505, eval_loss 0.842; cal 74.5%/ECE 0.080 n=140; internal 70.7%/0.082 n=141; typed-ext 55.9%/0.060 n=400; 43171 decisions, skip 809) | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-full | ckpt+final+merged+meta tersimpan di output kernel |
 | 2 | v6-resep seed 2 | `SEED=41` | belum | – | – |
 | 3 | v6-resep seed 3 | `SEED=42` | belum | – | – |
 | 4 | LOTO banking77 | `HOLDOUT_TAXONOMY=banking77` | belum | – | – |
