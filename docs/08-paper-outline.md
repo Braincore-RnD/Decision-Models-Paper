@@ -31,7 +31,7 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 
 | # | Claim | Evidence (ours) |
 |---|---|---|
-| C1 | Schema augmentation (option rename/paraphrase/derived questions) drives transfer to unseen taxonomies | v5→v6, identical recipe ± augment: BANKING77 36%→**83%**, CLINC150 33%→**73%** |
+| C1 | Schema augmentation (option rename/paraphrase/derived questions) drives transfer to unseen taxonomies | v5→v6, identical recipe ± augment: BANKING77 36%→**83%**, CLINC150 33%→**73%** (status: cross-split, pending LOTO #4–5 + token-matched A vs E #6–7, tracker di RECOMMENDATION §6.4) |
 | C2 | Under fixed 350M capacity, mixture composition is zero-sum across distributions | v2→v3→v4→v5 seesaw (intent share vs typed); §6 from_scratch |
 | C3 | Hybrid conv-attention backbone (LFM2.5-350M) works as decision backbone | Wiring + training logs; first outside Qwen/Llama/Gemma family |
 | C4 | Untrained-head baselines sit at chance; fine-tuning lifts all columns | before rows 31%/2%/17% (matches Unsloth's 36%/7%/19% pattern) |
@@ -120,15 +120,17 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 - Data: v1 typed-only → v2/v3 13-source mixture (equal/typed-2×, augmented) →
   v4/v5/v6 30k-row + soft sources (Open-Jev, LeWiDi, GoEmotions), canonical vs
   augmented ablation (`07-mixture-compositions.md`, `05-mixture-samples.md`).
-- Eval: Unsloth 3-column protocol + holdout (`03-eval-*.md`); upgrade path:
-  TypedBench protocol (paraphrase grid, noise-floor ECE, selective/coverage, cost).
+- Eval: Unsloth 3-column protocol + holdout (`03-eval-*.md`); v7: holdout dari
+  artefak train (cal/test .pt, bukan rekonstruksi), grid parafrase 3 varian,
+  bootstrap CI, latensi terukur, `eval_results.json`. Sisa upgrade path:
+  TypedBench noise-floor ECE, selective/coverage, cost.
 
 ## 4. Threats & gaps (must close before submit)
 
-1. **Own baselines**: rerun Qwen3.5-0.8B in identical protocol (no cited-numbers comparison).
-2. **Seeds**: all runs seed-3407 single; need ≥3 + intervals.
-3. **Augment ablations**: rename vs paraphrase vs derived, separately.
-4. **Broader eval**: Decision Index slices (BFCL/ToolRet) + latency + TypedBench grid.
+1. **Own baselines**: rerun Qwen3.5-0.8B in identical protocol (no cited-numbers comparison). Status: eval v7 swap MODEL_ID+FINAL, run #8 belum.
+2. **Seeds**: all runs seed-3407 single; need ≥3 + intervals. Status: train v7 SEED + eval v7 N_BOOT, run #1–3 belum.
+3. **Augment ablations**: rename vs paraphrase vs derived, separately. Status: A vs E token-matched dulu (#6–7 belum); B/C/D label-only, batas lib.
+4. **Broader eval**: Decision Index slices (BFCL/ToolRet) + latency + TypedBench grid. Status: latency + para grid jalan di eval v7; BFCL/ToolRet = tahap dua.
 5. **Vendor-claim hygiene**: mark Unsloth/TypeSafe numbers as vendor-reported;
    open inconsistencies found (Unsloth r64/1ep vs r16/2ep; Clef 3.8 vs 3.5 code).
 6. **License check**: `lfm1.0` full text unread; Open-Jev third-party notices apply.

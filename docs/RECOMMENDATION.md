@@ -251,10 +251,30 @@ Untuk target Scopus Q3/Q4, saya akan memposisikan artikel ini sebagai empirical 
 2. **Single seed + baseline vendor**: semua run seed-3407; Qwen 73/74/76% = angka Unsloth docs, bukan rerun protokol identik. Butuh ≥3 seeds + bootstrap CI + rerun Qwen sendiri.
 3. **Augmentasi tercampur token budget**: v5 34.8k → v6 43.1k decisions. Kenaikan 36%→83% bisa dari tambah token, bukan augmentasi. Butuh kontrol token-matched + ablasi rename vs paraphrase vs derived terpisah.
 
-### 6.3 Checklist minimal sebelum submit (lazy path)
+### 6.3 Checklist minimal sebelum submit (lazy path — v7 script-ready, run GPU pending)
 
-- [ ] LOTO BANKING77 / CLINC150 (2 train): transfer beneran?
-- [ ] Rerun Qwen3.5-0.8B protokol identik + 3 seeds v6 + CI
-- [ ] Ablasi augmentasi token-matched (A kanonis / B rename / C paraphrase / D derived / E full)
-- [ ] Kalibrasi: cal-set terpisah dari test, lapor ECE + Brier + NLL + AUROC error-detection, uji di distribusi geser
-- [ ] Split train/cal/test dikunci *sebelum* augment; C5 (soft labels) turun ke future work
+- [ ] LOTO BANKING77 / CLINC150 (2 train): `HOLDOUT_TAXONOMY=banking77|clinc150`, transfer beneran?
+- [ ] Rerun Qwen3.5-0.8B protokol identik (eval v7: `MODEL_ID`+`FINAL` diganti) + 3 seeds resep v6 (`SEED=3407/41/42`) + bootstrap CI (`N_BOOT`)
+- [ ] Ablasi augmentasi token-matched: `AUG_MODE=none|full` + `MAX_DECISIONS` sama (A vs E dulu; B/C/D dicatat sbg full — batas lib, lihat header train v7)
+- [ ] Kalibrasi: cal-set terpisah dari test (split 3-way v7, `calibrate` full dict); Brier/NLL/AUROC + uji distribusi geser = tahap dua
+- [ ] Split train/cal/test dikunci sebelum build (`SEED`, `SEED+5`); C5 (soft labels) turun ke future work
+
+### 6.4 Run plan v7 — tracker status (update tiap kernel jalan)
+
+Aturan per kernel: `FORCE_NEW=1`, output/HF terpisah, smoke `MAX_STEPS=60` dulu.
+Eval per kernel: eval v7 dengan `TRAIN_OUT` = out-u train; tempel `run_meta.json` +
+`eval_results.json` ke `RUN_LOG.md`. Status: `belum` → `ongoing` → `selesai`.
+
+| # | Kernel | Env kunci | Status | Kernel link | Hasil |
+|---|---|---|---|---|---|
+| 1 | v6-resep seed 1 | `SEED=3407` | ongoing (smoke v2 COMPLETE: 60 step loss 1.24, internal 52% n=141; full RUNNING) | smoke: https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-smoke · full: https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-full | smoke hijau, full ~4 jam |
+| 2 | v6-resep seed 2 | `SEED=41` | belum | – | – |
+| 3 | v6-resep seed 3 | `SEED=42` | belum | – | – |
+| 4 | LOTO banking77 | `HOLDOUT_TAXONOMY=banking77` | belum | – | – |
+| 5 | LOTO clinc150 | `HOLDOUT_TAXONOMY=clinc150` | belum | – | – |
+| 6 | Ablasi A (kanonis) | `AUG_MODE=none` + `MAX_DECISIONS=X` | belum | – | – |
+| 7 | Ablasi E (full) | `AUG_MODE=full` + `MAX_DECISIONS=X` (sama) | belum | – | – |
+| 8 | Qwen baseline (terpisah, bukan vN) | `MODEL_ID=<base qwen>` + `FINAL=<qwen latih>` | belum | – | – |
+
+Tahap dua (setelah #1–8 hijau): B/C/D terpisah, Brier/NLL/AUROC error-detection,
+Decision Index slice BFCL/ToolRet, uji distribusi geser.
