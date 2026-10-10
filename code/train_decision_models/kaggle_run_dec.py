@@ -31,6 +31,7 @@ CKPT_DS = "amalanfadilgaib/lfm-2-5-350m-decs1-ckpt"
 HF_REPO = os.environ.get("HF_REPO_DEC", "itsdevice/lfm-2.5-350m-decs1")
 PREP_HF = os.environ.get("PREP_HF", "LocalLLaMA/typed-decisions:all")
 PREP_SMOKE = os.environ.get("PREP_SMOKE", "")  # "1" = data sintetik (tiny-overfit DoD)
+PREP_HF_EXPLICIT = "PREP_HF" in os.environ  # bedakan default vs diset user
 
 
 def sh(cmd: list[str]) -> None:
@@ -80,7 +81,7 @@ for f in ("train_dec.py", "head.py", "data_dec.py"):
 # 2. data: dataset jadi > PREP_SMOKE > PREP_HF (default typed-decisions)
 have = list(IN.glob("**/decision_train.pt")) + list(DATA.glob("train.pt")) if IN.exists() else []
 data_dir = str(DATA)
-if have and not PREP_SMOKE and not os.environ.get("PREP_HF"):
+if have and not PREP_SMOKE and not PREP_HF_EXPLICIT:
     data_dir = str(have[0].parent)
     print(f"data: {data_dir}", flush=True)
 else:
@@ -121,7 +122,7 @@ dtype = "float16" if n else "float32"
 args = [f"--out_dir={OUT}", f"--data_dir={data_dir}", f"--init_from={init}",
         "--compile=False", f"--dtype={dtype}", f"--hf_repo={HF_REPO}"]
 args += ["--eval_interval=0", "--decide_every=0", "--num_train_epochs=2"]
-if PREP_SMOKE and not PREP_HF:
+if PREP_SMOKE and not PREP_HF_EXPLICIT:
     args += ["--max_steps=60"]  # smoke ala Unsloth: 60 step cukup sinyal belajar
 train = str(ROOT / "train_dec.py")
 if n >= 2:
