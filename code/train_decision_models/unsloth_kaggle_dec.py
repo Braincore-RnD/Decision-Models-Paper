@@ -71,6 +71,8 @@ AUGMENT = AUG_MODE != "none"
 _AUG_NOTE = "" if AUG_MODE in ("none", "full") else "label-only: lib bool, jalan sbg full"
 HOLDOUT_TAXONOMY = os.environ.get("HOLDOUT_TAXONOMY", "none")  # v7 LOTO: none|banking77|clinc150
 MAX_DECISIONS = int(os.environ.get("MAX_DECISIONS", "0"))  # v7: 0=off; >0 subsample rows (kontrol token-matched)
+BATCH = int(os.environ.get("BATCH", "8"))  # v7: turunkan bila OOM skema kanonis full (AUG_MODE=none)
+GRAD_ACCUM = int(os.environ.get("GRAD_ACCUM", "4"))  # v7: jaga BATCH*GRAD_ACCUM=32 (efektif tetap)
 LEWIDI_FLIP = os.environ.get("LEWIDI_FLIP", "0") == "1"  # v7: 1=balik urutan soft_label conv_abuse
 MIX_SOURCES = ["ag_news", "arc", "banking77", "boolq", "clinc150", "commonsense_qa",
                "mmlu", "mnli", "prompt_injections", "snli", "sst5", "wanli"]
@@ -291,8 +293,8 @@ else:
     print("FORCE_NEW: mulai fresh", flush=True)
 
 args = dict(
-    per_device_train_batch_size=8,
-    gradient_accumulation_steps=4,
+    per_device_train_batch_size=BATCH,
+    gradient_accumulation_steps=GRAD_ACCUM,
     num_train_epochs=EPOCHS,
     learning_rate=2e-4,
     lr_scheduler_type="cosine",
