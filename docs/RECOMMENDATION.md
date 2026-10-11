@@ -268,7 +268,7 @@ Eval per kernel: eval v7 dengan `TRAIN_OUT` = out-u train; tempel `run_meta.json
 | # | Kernel | Env kunci | Status | Kernel link | Hasil |
 |---|---|---|---|---|---|
 | 1 | v6-resep seed 1 | `SEED=3407` | selesai (3ep full 2.25 jam, train_loss 0.505, eval_loss 0.842; cal 74.5%/ECE 0.080 n=140; internal 70.7%/0.082 n=141; typed-ext 55.9%/0.060 n=400; 43171 decisions, skip 809) | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed3407-full | ckpt+final+merged+meta tersimpan di output kernel |
-| 2 | v6-resep seed 2 | `SEED=41` | ongoing | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed41-full | – |
+| 2 | v6-resep seed 2 | `SEED=41` | selesai (3ep, overfit ep3 0.72→0.90 best=ep2; cal 74.4%/ECE 0.094 n=132; internal 79.9%/0.091 n=132; typed-ext 53.3%/0.079 n=400; 43172 decisions, skip 810) | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-seed41-full | ckpt+final+merged+meta di output kernel |
 | 3 | v6-resep seed 3 | `SEED=42` | belum | – | – |
 | 4 | LOTO banking77 | `HOLDOUT_TAXONOMY=banking77` | belum | – | – |
 | 5 | LOTO clinc150 | `HOLDOUT_TAXONOMY=clinc150` | belum | – | – |
