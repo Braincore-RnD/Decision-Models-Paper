@@ -273,7 +273,7 @@ Eval per kernel: eval v7 dengan `TRAIN_OUT` = out-u train; tempel `run_meta.json
 | 4 | LOTO banking77 | `HOLDOUT_TAXONOMY=banking77` | selesai train (3ep, best ep2 0.59; cal 79.6%/ECE 0.089; internal 79.9%/0.090 n=133; typed-ext 59.0%/0.060 n=400) — skor BANKING77 tunggu eval | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-loto-banking-full | ckpt+final+meta di output kernel |
 | 5 | LOTO clinc150 | `HOLDOUT_TAXONOMY=clinc150` | selesai (3ep, best ep2 0.64; cal 78.0%/ECE 0.049; internal 79.0%/0.070 n=139; typed-ext 57.6%/0.082 n=400) | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-loto-clinc-full | ckpt+final+meta di output kernel |
 | 9 | Eval LOTO banking (transfer beneran?) | eval v7 `TRAIN_OUT`=run #4, `N_BOOT=30` | ongoing | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-eval-loto-banking | – |
-| 6 | Ablasi A (kanonis) | `AUG_MODE=none` + `MAX_DECISIONS=X` | belum | – | – |
+| 6 | Ablasi A (kanonis) | `AUG_MODE=none` + `MAX_DECISIONS=28000` | ongoing | https://www.kaggle.com/code/amalanfadilgaib/lfm-decs1-v7-ablasi-none-full | – |
 | 7 | Ablasi E (full) | `AUG_MODE=full` + `MAX_DECISIONS=X` (sama) | belum | – | – |
 | 8 | Qwen baseline (terpisah, bukan vN) | `MODEL_ID=<base qwen>` + `FINAL=<qwen latih>` | belum | – | – |
 
