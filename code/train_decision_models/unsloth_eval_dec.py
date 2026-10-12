@@ -47,6 +47,16 @@ SEED = int(os.environ.get("SEED", "3407"))
 TRAIN_OUT = os.environ.get("TRAIN_OUT", "")
 N_BOOT = int(os.environ.get("N_BOOT", "100"))
 PARA = os.environ.get("PARA", "1") == "1"
+LOAD_4BIT = os.environ.get("LOAD_4BIT", "1") == "1"  # v7: 0 = CPU (fp16/fp32, tanpa bitsandbytes)
+DUMP_API = os.environ.get("DUMP_API", "0") == "1"  # v7: 1 = cetak sumber API evaluate (recon per-item probs)
+
+
+def _fmt(v):
+    return f"{v:.0%}" if v == v else "n/a"  # v7: nan-safe (N_BOOT=0)
+
+
+def _fmt_ci(c):
+    return f"[{_fmt(c[0])}, {_fmt(c[1])}]" if c[0] == c[0] else "[n/a]"
 
 
 def sh(cmd):
@@ -139,11 +149,15 @@ def load_fresh():
     # melebihi budget dan build_dataset skip semua baris ("does not fit").
     # Ini bug eval v1/v2 (before nan), bukan data rusak.
     model, tokenizer = FastDecisionModel.from_pretrained(
-        model_name=MODEL_ID, max_seq_length=4096, load_in_4bit=True)
-    model = FastDecisionModel.get_peft_model(
-        model, r=16, lora_alpha=16, lora_dropout=0,
-        use_gradient_checkpointing="unsloth", random_state=SEED)
-    return model, tokenizer
+        model_name=MODEL_ID, max_seq_length=4096, load_in_4bit=LOAD_4BIT)
+    try:
+        model = FastDecisionModel.get_peft_model(
+            model, r=16, lora_alpha=16, lora_dropout=0,
+            use_gradient_checkpointing="unsloth", random_state=SEED)
+    except Exception as e:  # v7: CPU tanpa kernel unsloth -> before dilewati (chance known)
+        print(f"WARN before-model tanpa LoRA ({e}); before=n/a", flush=True)
+        return model, tokenizer, False
+    return model, tokenizer, True
 
 
 def find_final():
@@ -170,7 +184,7 @@ def find_train_out():
 
 
 print("== BUILD (sekali, dipakai before+after) ==", flush=True)
-model0, tok0 = load_fresh()
+model0, tok0, _has_before = load_fresh()
 bench_items = {}
 for name, limit in BENCHES:
     bench_items[name] = build_bench(tok0, model0, name, limit)
@@ -179,7 +193,7 @@ print("== BEFORE (base + head random) ==", flush=True)
 before = {}
 for name, _ in BENCHES:
     items = bench_items[name]
-    if not items:
+    if not items or not _has_before:
         before[name] = (float("nan"), 0)
         continue
     m = FastDecisionModel.evaluate(model0, tok0, items)
@@ -187,7 +201,15 @@ for name, _ in BENCHES:
     print(f"before {name}: {before[name]}", flush=True)
 
 print("== AFTER (final latih) ==", flush=True)
-model1, tok1 = FastDecisionModel.from_pretrained(find_final(), load_in_4bit=True)
+model1, tok1 = FastDecisionModel.from_pretrained(find_final(), load_in_4bit=LOAD_4BIT)
+if DUMP_API:  # v7 recon: cetak API evaluate (cari akses probs per-item buat Brier/AUROC)
+    try:
+        import inspect as _insp
+
+        print([m for m in dir(FastDecisionModel) if not m.startswith("_")], flush=True)
+        print(_insp.getsource(FastDecisionModel.evaluate), flush=True)
+    except Exception as e:
+        print(f"dump api gagal: {e}", flush=True)
 after, latency, para, ci = {}, {}, {}, {}
 for name, _ in BENCHES:
     items = bench_items[name]
@@ -212,7 +234,7 @@ for name, _ in BENCHES:
 print("== CI (bootstrap AFTER) ==", flush=True)
 for name, _ in BENCHES:
     ci[name] = _boot_ci(bench_items[name], model1, tok1, N_BOOT, SEED + 7)
-    print(f"ci {name}: [{ci[name][0]:.1%}, {ci[name][1]:.1%}]", flush=True)
+    print(f"ci {name}: {_fmt_ci(ci[name])}", flush=True)
 
 # holdout + kalibrasi: dari artefak train bila ada (distribusi identik)
 tout = find_train_out()
@@ -247,12 +269,12 @@ if hold_acc != hold_acc:  # NaN = artefak tak ada -> rekonstruksi lama
 
 print("\n| Model | typed-decisions | BANKING77 | CLINC150 | Holdout acc |", flush=True)
 b, a = before, after
-row = (f"| LFM2.5-350M-decs1 | {b['typed_decisions'][0]:.0%} -> **{a['typed_decisions'][0]:.0%}** "
-       f"[{ci['typed_decisions'][0]:.0%}, {ci['typed_decisions'][1]:.0%}] "
-       f"| {b['banking77'][0]:.0%} -> **{a['banking77'][0]:.0%}** "
-       f"[{ci['banking77'][0]:.0%}, {ci['banking77'][1]:.0%}] "
-       f"| {b['clinc150'][0]:.0%} -> **{a['clinc150'][0]:.0%}** "
-       f"[{ci['clinc150'][0]:.0%}, {ci['clinc150'][1]:.0%}] | {hold_acc:.0%} ({hold_label}) |")
+row = (f"| LFM2.5-350M-decs1 | {_fmt(b['typed_decisions'][0])} -> **{_fmt(a['typed_decisions'][0])}** "
+       f"{_fmt_ci(ci['typed_decisions'])} "
+       f"| {_fmt(b['banking77'][0])} -> **{_fmt(a['banking77'][0])}** "
+       f"{_fmt_ci(ci['banking77'])} "
+       f"| {_fmt(b['clinc150'][0])} -> **{_fmt(a['clinc150'][0])}** "
+       f"{_fmt_ci(ci['clinc150'])} | {_fmt(hold_acc)} ({hold_label}) |")
 print(row, flush=True)
 
 results = {"model_id": MODEL_ID, "final": find_final(), "seed": SEED, "eval_n": EVAL_N,
