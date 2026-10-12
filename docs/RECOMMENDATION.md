@@ -235,7 +235,8 @@ Untuk target Scopus Q3/Q4, saya akan memposisikan artikel ini sebagai empirical 
 
 ## 6. Temuan audit kelayakan Scopus Q3 (2026-10-10, berbasis RUN_LOG v1–v6 + PAPER.md)
 
-> Status: **belum submit-ready**. 70% jalan, 5 verifikasi minimal sebelum submit.
+> Status awal (2026-10-10): **belum submit-ready**. 70% jalan, 5 verifikasi minimal
+> sebelum submit — terpenuhi oleh run v7 #1–17, lihat §7. Tersisa: sinkron RUN_LOG.md + tulis paper.
 
 ### 6.1 Inkonsistensi yang harus direkonsiliasi dulu
 
@@ -288,3 +289,49 @@ Decision Index slice BFCL/ToolRet, uji distribusi geser.
 |---|---|---|---|---|---|
 | 16 | Recon `predict` API (Colab T4, tanpa train) | selesai: `predict(model, tok, state, questions)->{answer+probabilities terkalibrasi}`. Infra: `predict_dump.py` + `score_preds.py` (terverifikasi sintetis) | selesai | sesi ephemeral, arsip kode di repo |
 | 17 | Dump + metrik RQ3 (Colab T4) | selesai dua model. LOTO-banking (shift): BANK unseen ECE **0.366**/Brier 0.876/cov 0.6% vs CLINC in-train ECE 0.176/cov 29% — kalibrasi tak transfer, tapi AUROC 0.73 (daya bedakan bertahan). E (in-dist): BANK ECE **0.026**/cov 63%, CLINC ECE 0.09/cov 40%. Klaim coverage 64.2% PAPER mati (max 63% in-dist, ~0% di shift). | selesai | arsip docs/eval/colab/loto-banking/ + ablasi-full/ (items_pred.json + metrics*.json, token-free) |
+
+## 7. Temuan terverifikasi v7 (2026-10-12, run #1–17 hijau semua)
+
+Semua angka dari test identik (BANKING77/CLINC150 500 contoh, typed-decisions 400,
+sampling SEED 3407). Artefak: `docs/eval/`, kernel link di §6.4.
+
+### 7.1 In-distribution 3-seed
+
+| seed | typed-decisions | BANKING77 | CLINC150 |
+|---|---|---|---|
+| 3407 | 55.9 | 76.8 | 68.2 |
+| 41 | 53.3 | 83.4 | 76.6 |
+| 42 | 55.6 | 83.8 | 73.8 |
+| **mean** | **54.9** | **81.3** | **72.9** |
+
+Variansi antar-seed nyata di BANKING77 (76.8 vs ~83.5) — alasan kenapa satu seed tidak cukup.
+
+### 7.2 Transfer dua arah (LOTO, penentu C1)
+
+BANKING77 unseen **44% [38–47%]** (chance 2%, para 42.2–43.6); CLINC150 unseen
+**55.6%** (para 55.6–57.0, chance 17%). Transfer substansial, bukan 83% in-distribution.
+
+### 7.3 Ablasi A vs E (rows-matched 28000=28000, penentu cerita v5→v6)
+
+A kanonis 86/84 vs E full-augment 79/70 (BANK/CLINC). Lompatan v5→v6 (36→83)
+adalah **confound truncasi** (v5 `max_seq` 2048 memotong skema lebar; subsampling
+augmentasi yang membuatnya muat), bukan robustness semantik — klaim lama mati.
+Augmentasi = beli transfer + hemat memori, pajak beberapa poin in-domain.
+Caveat tercatat: decisions +25% buat E (bias menguntungkan E, hasil konservatif),
+batch 4 vs 8 (efektif sama 32), A/E masing-masing 1 seed.
+
+### 7.4 RQ3: kalibrasi tidak transfer, AUROC bertahan
+
+BANKING77 unseen ECE **0.366**/Brier 0.876/cov 0.6% vs in-train 0.026/0.281/63%.
+Temperature scaling yang di-fit in-distribution jebol di shift — tapi AUROC
+error-detection bertahan (0.87→0.73): confidence tetap memilah benar-salah.
+Dukung tesis System Switch di backbone hybrid kecil. Klaim coverage 64.2% PAPER mati.
+
+### 7.5 Latensi terukur T4: 56–249ms/item (klaim `sub-45ms` mati, direvisi di tahap paper).
+
+### 7.6 Sisa kerja (eksperimen inti cukup Q3/Q4)
+
+1. Sinkron `RUN_LOG.md` v7 (tracker §6.4 yang current).
+2. Tulis ulang `PAPER.md` §5 + `paper/sections/` dari angka §7.1–7.5; bunuh klaim
+   lama (83%/73% zero-shot, sub-45ms, coverage 64.2%, "augmentasi driver in-dist").
+3. Tahap-dua opsional: B/C/D terpisah, BFCL/ToolRet + MASSIVE + macro-F1, OOS/OOD eksplisit.
