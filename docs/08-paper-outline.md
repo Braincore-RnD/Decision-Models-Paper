@@ -122,7 +122,9 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
   augmented ablation (`07-mixture-compositions.md`, `05-mixture-samples.md`).
 - Eval: Unsloth 3-column protocol + holdout (`03-eval-*.md`); v7: holdout dari
   artefak train (cal/test .pt, bukan rekonstruksi), grid parafrase 3 varian,
-  bootstrap CI, latensi terukur, `eval_results.json`. Sisa upgrade path:
+  bootstrap CI, latensi terukur, `eval_results.json`. RQ3 (kalibrasi di shift):
+  `predict` API ditemukan (#16 recon), dump per-item → Brier/NLL/AUROC/coverage
+  dihitung lokal (#17). Sisa upgrade path:
   TypedBench noise-floor ECE, selective/coverage, cost.
 
 ## 4. Threats & gaps (must close before submit)

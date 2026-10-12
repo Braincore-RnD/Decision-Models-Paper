@@ -256,7 +256,7 @@ Untuk target Scopus Q3/Q4, saya akan memposisikan artikel ini sebagai empirical 
 - [ ] LOTO BANKING77 / CLINC150 (2 train): `HOLDOUT_TAXONOMY=banking77|clinc150`, transfer beneran?
 - [ ] Rerun Qwen3.5-0.8B protokol identik (eval v7: `MODEL_ID`+`FINAL` diganti) + 3 seeds resep v6 (`SEED=3407/41/42`) + bootstrap CI (`N_BOOT`)
 - [ ] Ablasi augmentasi token-matched: `AUG_MODE=none|full` + `MAX_DECISIONS` sama (A vs E dulu; B/C/D dicatat sbg full — batas lib, lihat header train v7)
-- [ ] Kalibrasi: cal-set terpisah dari test (split 3-way v7, `calibrate` full dict); Brier/NLL/AUROC + uji distribusi geser = tahap dua
+- [ ] Kalibrasi: cal-set terpisah dari test (split 3-way v7, `calibrate` full dict); Brier/NLL/AUROC + uji distribusi geser = tahap dua → berjalan #16-17 (`predict` API ditemukan via DUMP_API, dump per-item + hitung lokal)
 - [ ] Split train/cal/test dikunci sebelum build (`SEED`, `SEED+5`); C5 (soft labels) turun ke future work
 
 ### 6.4 Run plan v7 — tracker status (update tiap kernel jalan)
@@ -283,3 +283,8 @@ Eval per kernel: eval v7 dengan `TRAIN_OUT` = out-u train; tempel `run_meta.json
 
 Tahap dua (setelah #1–8 hijau): B/C/D terpisah, Brier/NLL/AUROC error-detection,
 Decision Index slice BFCL/ToolRet, uji distribusi geser.
+
+| # | Kernel | Env kunci | Status | Kernel link | Hasil |
+|---|---|---|---|---|---|
+| 16 | Recon `predict` API (Colab T4, tanpa train) | `inspect.signature + source + uji 3 items` | belum | – | Desain dump: per item simpan `{bench, gold, pred, maxprob, probs?}` → `items_pred.json`; metrik dihitung LOKAL (tanpa GPU): Brier multiclass rata-rata per-question, NLL `-log p_true`, ECE 10-bin, AUROC error-detection (skor=maxprob), coverage@risk≤5% (sapu threshold maxprob). Model: LOTO-banking dulu (shift!), lalu E (referensi in-dist). |
+| 17 | Dump + metrik RQ3 (Colab T4) | PRED_DUMP per bench → hitung lokal → `metrics.json` | belum | – | – |
