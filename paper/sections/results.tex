@@ -1,12 +1,59 @@
 \section{Results and Discussion}
+\label{sec:results}
+\subsection{In-Distribution: Three Seeds}
+On identical tests, the base recipe gives typed-decisions 55.9/53.3/55.6
+(mean 54.9), BANKING77 76.8/83.4/83.8 (mean 81.3), and CLINC150
+68.2/76.6/73.8 (mean 72.9). Seed spread on BANKING77 (76.8 vs $\sim$83.5) is
+exactly why single-seed reporting is insufficient. Untrained-head baselines sit
+at chance (31\%/2\%/17\%).
 
-\subsection{Performance Comparison}
-% RF vs XGB
-% With and without GA
+\subsection{Transfer: Leave-One-Taxonomy-Out}
+With BANKING77 fully held out, accuracy reaches \textbf{44\% [38--47\%]}
+against 2\% chance (paraphrase median 42.8\%, range 42.2--43.6); with CLINC150
+held out, \textbf{55.6\%} (paraphrase 55.6--57.0) against 17\% chance. Transfer
+is substantial but partial versus 81.3\%/72.9\% in-distribution.
 
-\subsection{Computational Cost Analysis}
-% Training time comparison
+\subsection{Ablation: The Truncation Confound}
+Row-matched canonical (A) vs full-augmentation (E) training gives:
 
-\subsection{Explainability Analysis}
-% SHAP global importance
-% SHAP local explanation
+\begin{table}[htbp]
+\caption{Ablation A vs E (28\,000 rows each; decisions 31\,754 vs 39\,560).}
+\label{tab:ablation}
+\begin{center}
+\begin{small}
+\begin{tabular}{lccc}
+\toprule
+Treatment & typed & BANKING77 & CLINC150 \\
+\midrule
+A canonical & 54\% [51--56] & \textbf{86\%} [81--88] & \textbf{84\%} [81--88] \\
+E augmented & 59\% [56--61] & 79\% [75--82] & 70\% [65--73] \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+An earlier 36\%\,$\to$\,83\% jump attributed to augmentation was a context
+truncation confound: training at 2\,048 tokens cut wide schemas, and
+augmentation's option subsampling merely made them fit. With fitting context,
+canonical training wins in-distribution; augmentation buys transfer plus memory
+savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
+tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
+batch 4 vs 8 at equal effective size 32.
+
+\subsection{Calibration Under Shift}
+On BANKING77, ECE rises from \textbf{0.026} in-distribution to \textbf{0.366}
+held-out (Brier 0.281\,$\to$\,0.876); autonomous coverage at 5\% risk collapses
+from 63\% to 0.6\%. Temperature scaling fit in-distribution does not transfer.
+Yet error-detection AUROC falls only from 0.87 to 0.73: confidence still
+separates right from wrong answers, confirming that accuracy, calibration, and
+sensitivity are distinct quantities~\cite{systemswitch2026}. Measured T4 latency
+is 56--249\,ms/item depending on schema width.
+
+\subsection{Discussion}
+For practitioners: fit schemas in context first (truncation dwarfs recipe
+effects), buy augmentation for transfer and memory rather than in-domain
+points, and never trust in-distribution temperatures under shift---gate
+automation on AUROC-validated escalation instead. Limits: A/E are single-seed
+with a batch-size confound; rename/paraphrase/derived are not yet separated;
+no same-protocol Qwen rerun; OOS/OOD and macro-F1 slices are future work.

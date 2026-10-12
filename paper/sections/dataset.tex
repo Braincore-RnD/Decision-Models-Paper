@@ -1,13 +1,23 @@
 \section{Dataset and Preprocessing}
+\subsection{Mixture Composition}
+Training uses a 13-source mixture (20\,400 sampled rows) plus 9\,600
+consensus-soft rows: Open-Jev release-v2 (3\,600) and mailroom-control-v1
+(2\,400), LeWiDi conv\_abuse and csc sarcasm (1\,200 each, annotator-share soft
+labels), and GoEmotions (1\,200 emotion-fraction rows). Intent taxonomies
+(BANKING77, CLINC150) are upweighted $3\times$; twelve public intent and
+reasoning sources fill the remainder. All rows are rendered into canonical
+decision records (state, typed questions with option criteria, gold labels).
 
-\subsection{Dataset Description}
-% Kaggle dataset description
-% Origin from Zenodo paper
+\subsection{Schema Augmentation}
+Augmentation (treatment E) applies option subsampling and shuffling (wide
+taxonomies capped at 24 options), instruction paraphrasing, and derived binary
+(noul) questions. Treatment A disables all augmentation (canonical schemas).
+With augmentation the same row budget yields more decisions (39\,560 vs
+31\,754), a residual we disclose rather than hide.
 
-\subsection{Feature Selection}
-% Input features
-% Target variable (SoC)
-
-\subsection{Data Preprocessing}
-% Normalization
-% Train-test split
+\subsection{Decontamination and Splits}
+All rows are decontaminated against canonical test splits with 13-gram shingle
+matching before training. Items are split train/calibration/test with fixed
+seeds; temperature scaling is fit on calibration only, verdicts on held-out
+tests. For leave-one-taxonomy-out (LOTO) runs, every row, label definition, and
+augmentation variant of the held-out taxonomy is removed from training.

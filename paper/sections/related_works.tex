@@ -1,5 +1,42 @@
 \section{Related Works}
-% SoC estimation methods
-% ML-based SoC
-% Metaheuristic optimization in energy systems
-% XAI in power and energy applications
+\subsection{System-One Decision Models}
+TypeSafe's Jev frames automation as decision routing with honest
+probabilities~\cite{typesafe-jev}. Cloudflare's Clef (27B) and Clef-flash (9B)
+pair frozen Qwen backbones with a joint schema head trained with label-smoothed
+cross-entropy, Brier penalty, and an RLCD secondary objective; weights are open
+under Apache-2.0~\cite{cloudflare-clef}. Convai's Laya shows sub-500M
+bidirectional encoders reaching single-digit millisecond latency~\cite{convai-laya}.
+LiquidAI's open d1 family (d1-omni-600M, same LFM lineage as our backbone)
+provides the closest size-class reference~\cite{liquid-d1}. We tributeevaluate
+against vendor-reported numbers only, clearly labeled, since rerunning 9--27B
+models is outside a T4 protocol.
+
+\subsection{Which RLCD?}
+We use RLCD as \textit{Reinforcement Learning for Calibrated Decisions}
+(TypeSafe/Cloudflare: RL with a proper-scoring-rule reward). This is unrelated
+to Yang et~al.'s \textit{Reinforcement Learning from Contrastive
+Distillation}~\cite{yang2024rlcd}, which generates preference pairs without a
+calibration objective. Shared acronym only. Analysis of RLCD variance and the
+\textit{calibrate, then reinforce} paradigm appears
+in~\cite{gao2026openjev,guo2026jevalign}.
+
+\subsection{Calibration and Selective Classification}
+A scoring rule is strictly proper if truth-telling uniquely maximizes the
+expected score~\cite{gneiting2007strictly}. The Brier score~\cite{brier1950verification} and its
+reliability--resolution--uncertainty decomposition~\cite{murphy1973new} are our main
+tools. Guo et~al. showed modern networks are overconfident and temperature
+scaling helps~\cite{guo2017calibration}. Selective classification formalizes
+abstention via coverage and selective risk~\cite{geifman2017selective}; our
+coverage-at-risk metric follows that line.
+
+\subsection{Zero-Shot Decision Benchmarks}
+TypedBench proposes accuracy, paraphrase robustness, calibration against a
+finite-sample noise floor, and selective prediction for decision
+models~\cite{typedbench2026}; we borrow its paraphrase-grid and selective
+protocol. System Switch shows accuracy, ECE, and error-detection AUROC are
+distinct quantities, with deferral gain tracking AUROC
+($\rho=0.87$)~\cite{systemswitch2026}---exactly the dissociation we observe
+under shift. Small-model precedents include distillation from System-One
+labels~\cite{distilljev2026} and matched-token-budget 360M
+finetunes~\cite{bottled2026}. Option-order sensitivity motivates schema
+augmentation as a treatment~\cite{pezeshkpour2024option}.

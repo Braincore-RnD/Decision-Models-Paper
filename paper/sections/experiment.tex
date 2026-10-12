@@ -1,11 +1,14 @@
 \section{Experimental Setup}
-
-\subsection{Evaluation Metrics}
-% RMSE, MAE, MAPE, R2
-% Training time
-% Inference time
-
-\subsection{Implementation Details}
-% Hardware
-% Software
-% Libraries
+\subsection{Protocol}
+Seven training runs (3 seeds of the base recipe, 2 LOTO, 2 ablations) on NVIDIA
+T4 via Kaggle kernels: AdamW, backbone LR $2\times10^{-4}$, head LR
+$1\times10^{-4}$, cosine decay, effective batch 32, 3 epochs keeping best
+eval-loss (epoch-3 overfitting was consistent, so the best checkpoint is always
+epoch 2). Evaluation uses identical test sets everywhere
+(BANKING77/CLINC150 500 items, typed-decisions 400): canonical accuracy plus a
+3-variant paraphrase grid (wording and option-order perturbations), bootstrap
+95\% intervals, measured per-item latency, and per-item probability dumps scored
+with Brier, NLL, 10-bin ECE, error-detection AUROC, and coverage at 5\% risk.
+Vendor numbers (Unsloth Qwen, Cloudflare Clef) are cited as labeled context,
+never as rerun baselines; the size-matched reference is d1-omni-600M from the
+same LFM lineage~\cite{liquid-d1}.

@@ -1,4 +1,11 @@
 \section{Conclusion}
-% Summary
-% Key findings
-% Future work
+A 350M hybrid convolution-attention backbone, fitted with a joint schema head,
+is a viable System-One decision engine: 81.3\%/72.9\% in-distribution means
+over three seeds, 44\%/55.6\% held-out-taxonomy transfer, and honest,
+reproduced numbers throughout. Our main methodological finding is a cautionary
+one: a dramatic augmentation effect was context truncation in disguise, and
+calibration fit in-distribution collapses under shift even as error detection
+survives. Artifacts---seven training runs, six evaluation kernels, per-item
+dumps, and logs---are archived for reproduction. Future work separates
+augmentation types, extends OOS/OOD and leaderboard slices, and explores
+shift-aware calibration.

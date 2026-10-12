@@ -1,5 +1,41 @@
 \section{Introduction}
-% Background
-% Problem statement
-% Motivation
-% Contributions
+Enterprise automation---fraud routing, ticket triage, policy enforcement---needs
+decisions that are fast, syntactically valid, and uncertainty-aware. The dominant
+practice prompts an autoregressive model to emit JSON, incurring three costs:
+(i)~$O(T)$ sequential decoding (1.5--4\,s per decision with KV-cache traffic),
+(ii)~non-zero schema-violation rates under constrained budgets, and
+(iii)~systematic overconfidence from preference-based alignment, which makes raw
+softmax scores unusable for risk-controlled automation.
+
+System-One decision models~\cite{typesafe-jev,cloudflare-clef,convai-laya},
+inspired by dual-process theory~\cite{kahneman2011}, separate deciding from
+generating: a state $S$ and a typed schema $Q$ are mapped to a joint
+distribution over options in one forward pass ($O(1)$ decoding steps), with
+probabilities trained to be calibrated. Open questions remain for sub-billion
+models: does schema augmentation drive transfer to unseen taxonomies, what does
+data-mixture composition trade off at fixed capacity, and does calibration
+survive distribution shift?
+
+We study these on LiquidAI LFM2.5-350M, a hybrid model with convolutional
+sequence mixers and grouped-query attention, fitted with a cross-attention
+JointSchemaHead via QLoRA. Our contributions, each backed by controlled runs
+with fixed test sets, are:
+\begin{enumerate}
+\item \textbf{Measured transfer:} leave-one-taxonomy-out evaluation gives 44\%
+  on BANKING77 and 55.6\% on CLINC150 (chance: 2\%/17\%) versus
+  in-distribution means of 81.3\%/72.9\% over three seeds.
+\item \textbf{A confound found and fixed:} an earlier 36\%\,$\to$\,83\%
+  augmentation jump was context truncation ($2048$ tokens cutting wide
+  schemas), not semantic robustness. Row-matched canonical training wins
+  in-distribution (86\%/84\% vs 79\%/70\%); augmentation buys transfer plus
+  memory savings at a small in-domain tax.
+\item \textbf{Calibration under shift:} ECE rises from 0.026 in-distribution to
+  0.366 on the held-out taxonomy while error-detection AUROC only falls from
+  0.87 to 0.73; autonomous coverage at 5\% risk collapses from 63\% to near
+  zero. Temperature scaling fit in-distribution does not transfer.
+\item \textbf{Artifacts:} seven training runs and six evaluation kernels with
+  checkpoints, per-item dumps, and logs archived for reproduction.
+\end{enumerate}
+Section~2 positions the work, Section~3 describes data, Section~4 the
+architecture and losses, Section~5 the protocol, Section~6 results, and
+Section~7 concludes.

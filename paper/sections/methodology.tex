@@ -1,20 +1,27 @@
 \section{Proposed Methodology}
+\subsection{Backbone and Decision Head}
+We adapt \texttt{LiquidAI/LFM2.5-350M}~\cite{liquid-lfm2} (16 layers: 10
+double-gated convolutional LIV blocks plus 6 grouped-query attention blocks)
+with QLoRA (rank 16) following the Unsloth decision recipe~\cite{unsloth-decision}.
+A JointSchemaHead projects final hidden states to width 256, routes candidate
+options over full-sequence memory with 2 cross-attention layers, conditions
+each field through 4 transformer decoder layers with a learned type embedding,
+and scores options via a dual path: a lexical prior plus a joint interaction
+MLP over $[\mathbf{f}_q; \mathbf{o}; \mathbf{f}_q\odot\mathbf{o};
+|\mathbf{f}_q-\mathbf{o}|]$. Inference is one forward pass; outputs are
+per-question softmax probabilities over \texttt{choice}, \texttt{score}, and
+\texttt{noul} primitives. Context length is 4\,096 so full 77/150-option
+schemas fit untruncated---Section~\ref{sec:results} shows why this matters.
 
-\subsection{Overall Framework}
-% Pipeline diagram description
+\subsection{Multi-Objective Loss}
+\begin{equation}
+\mathcal{L} = \mathcal{L}_{\text{LS-CE}} + \lambda_{\text{Brier}}\,
+\mathcal{L}_{\text{Brier}} + \lambda_{\text{ord}}\,\mathcal{L}_{\text{Ordinal}},
+\end{equation}
+combining label-smoothed cross-entropy ($\epsilon=0.05$), a Brier calibration
+penalty against one-hot targets that punishes overconfident errors, and an
+ordinal partial-credit term for \texttt{score} types.
 
-\subsection{Machine Learning Models}
-\subsubsection{Random Forest Regression}
-% Model description
-
-\subsubsection{Extreme Gradient Boosting (XGBoost)}
-% Model description
-
-\subsection{Genetic Algorithm for Hyperparameter Optimization}
-% Encoding
-% Fitness function
-% GA operators
-
-\subsection{Explainable AI using SHAP}
-% SHAP methodology
-% Interpretation strategy
+\subsection{Post-Hoc Calibration}
+Dual temperature scaling $z' = z/(T_{\text{head}}\cdot T_{\text{rel}}[\tau])$ is
+fit with L-BFGS on the calibration split only, minimizing NLL over hard labels.
