@@ -1,0 +1,51 @@
+{
+  "model_id": "LiquidAI/LFM2.5-350M",
+  "final": "/kaggle/input/notebooks/amalanfadilgaib/lfm-decs1-v7-seed41-full/out-u/final",
+  "seed": 3407,
+  "eval_n": 500,
+  "before": {
+    "typed_decisions": 0.3055,
+    "banking77": 0.024,
+    "clinc150": 0.172
+  },
+  "after": {
+    "typed_decisions": 0.5325,
+    "banking77": 0.834,
+    "clinc150": 0.766
+  },
+  "ci95": {
+    "typed_decisions": [
+      NaN,
+      NaN
+    ],
+    "banking77": [
+      NaN,
+      NaN
+    ],
+    "clinc150": [
+      NaN,
+      NaN
+    ]
+  },
+  "paraphrase": {},
+  "latency_ms_per_item": {
+    "typed_decisions": 57.062890914999116,
+    "banking77": 126.8805905879999,
+    "clinc150": 223.88567421399964
+  },
+  "holdout": {
+    "acc": 0.798941798941799,
+    "dist": "train-split seed=41 aug=full loto=none train/cal/test=28926/132/132"
+  },
+  "calibrate": {
+    "accuracy": 0.7440758293838863,
+    "ece": 0.09110974612252969,
+    "loss": 0.7517352971764479,
+    "record_accuracy": 0.6893939393939394,
+    "fitted_types": [
+      0,
+      1,
+      2
+    ]
+  }
+}

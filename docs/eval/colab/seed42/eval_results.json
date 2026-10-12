@@ -1,0 +1,51 @@
+{
+  "model_id": "LiquidAI/LFM2.5-350M",
+  "final": "/content/artifacts/seed42/out-u/final",
+  "seed": 3407,
+  "eval_n": 500,
+  "before": {
+    "typed_decisions": 0.3055,
+    "banking77": 0.024,
+    "clinc150": 0.172
+  },
+  "after": {
+    "typed_decisions": 0.5555,
+    "banking77": 0.838,
+    "clinc150": 0.738
+  },
+  "ci95": {
+    "typed_decisions": [
+      NaN,
+      NaN
+    ],
+    "banking77": [
+      NaN,
+      NaN
+    ],
+    "clinc150": [
+      NaN,
+      NaN
+    ]
+  },
+  "paraphrase": {},
+  "latency_ms_per_item": {
+    "typed_decisions": 56.04004114499958,
+    "banking77": 125.47536824000008,
+    "clinc150": 221.32806746599996
+  },
+  "holdout": {
+    "acc": 0.7902439024390244,
+    "dist": "train-split seed=42 aug=full loto=none train/cal/test=28870/136/136"
+  },
+  "calibrate": {
+    "accuracy": 0.8,
+    "ece": 0.07645931687110506,
+    "loss": 0.5926404013977763,
+    "record_accuracy": 0.75,
+    "fitted_types": [
+      0,
+      1,
+      2
+    ]
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "model_id": "LiquidAI/LFM2.5-350M",
+  "final": "/content/artifacts/loto-clinc/out-u/final",
+  "seed": 3407,
+  "eval_n": 500,
+  "before": {
+    "typed_decisions": 0.3055,
+    "banking77": 0.024,
+    "clinc150": 0.172
+  },
+  "after": {
+    "typed_decisions": 0.5755,
+    "banking77": 0.822,
+    "clinc150": 0.556
+  },
+  "ci95": {
+    "typed_decisions": [
+      NaN,
+      NaN
+    ],
+    "banking77": [
+      NaN,
+      NaN
+    ],
+    "clinc150": [
+      NaN,
+      NaN
+    ]
+  },
+  "paraphrase": {
+    "typed_decisions": {
+      "median": 0.5755,
+      "range": [
+        0.5755,
+        0.5755
+      ]
+    },
+    "banking77": {
+      "median": 0.822,
+      "range": [
+        0.818,
+        0.826
+      ]
+    },
+    "clinc150": {
+      "median": 0.56,
+      "range": [
+        0.556,
+        0.57
+      ]
+    }
+  },
+  "latency_ms_per_item": {
+    "typed_decisions": 56.05051311000011,
+    "banking77": 124.24313365600005,
+    "clinc150": 220.18973487800008
+  },
+  "holdout": {
+    "acc": 0.79,
+    "dist": "train-split seed=3407 aug=full loto=clinc150 train/cal/test=28913/139/139"
+  },
+  "calibrate": {
+    "accuracy": 0.78,
+    "ece": 0.049098969474434886,
+    "loss": 0.6765519135532463,
+    "record_accuracy": 0.7194244604316546,
+    "fitted_types": [
+      0,
+      1,
+      2
+    ]
+  }
+}

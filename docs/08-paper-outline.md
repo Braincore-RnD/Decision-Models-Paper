@@ -31,7 +31,7 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 
 | # | Claim | Evidence (ours) |
 |---|---|---|
-| C1 | Schema augmentation (option rename/paraphrase/derived questions) drives transfer to unseen taxonomies | LOTO banking77: **44% [38–47%]** vs chance 2% (transfer nyata, bukan 83% in-dist). REVISI CERITA v5→v6: in-dist A86/E79 + A84/E70 (rows-matched) → lompatan 36→83 dulu adalah confound truncasi (v5 max_seq 2048, skema lebar kepotong; subsampling augmentasi yg membuatnya muat), bukan robustness semantik. Augmentasi = beli transfer + hemat memori, pajak beberapa poin in-domain. |
+| C1 | Schema augmentation (option rename/paraphrase/derived questions) drives transfer to unseen taxonomies | LOTO banking77: **44% [38–47%]** vs chance 2%; LOTO clinc150: **55.6%** (para 55.6–57.0) vs chance 17% (transfer nyata dua arah, bukan 83% in-dist). REVISI CERITA v5→v6: in-dist A86/E79 + A84/E70 (rows-matched) → lompatan 36→83 dulu adalah confound truncasi (v5 max_seq 2048, skema lebar kepotong; subsampling augmentasi yg membuatnya muat), bukan robustness semantik. Augmentasi = beli transfer + hemat memori, pajak beberapa poin in-domain. |
 | C2 | Under fixed 350M capacity, mixture composition is zero-sum across distributions | v2→v3→v4→v5 seesaw (intent share vs typed); §6 from_scratch |
 | C3 | Hybrid conv-attention backbone (LFM2.5-350M) works as decision backbone | Wiring + training logs; first outside Qwen/Llama/Gemma family |
 | C4 | Untrained-head baselines sit at chance; fine-tuning lifts all columns | before rows 31%/2%/17% (matches Unsloth's 36%/7%/19% pattern) |
