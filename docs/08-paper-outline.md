@@ -122,9 +122,10 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
   augmented ablation (`07-mixture-compositions.md`, `05-mixture-samples.md`).
 - Eval: Unsloth 3-column protocol + holdout (`03-eval-*.md`); v7: holdout dari
   artefak train (cal/test .pt, bukan rekonstruksi), grid parafrase 3 varian,
-  bootstrap CI, latensi terukur, `eval_results.json`. RQ3 (kalibrasi di shift):
-  `predict` API ditemukan (#16 recon), dump per-item → Brier/NLL/AUROC/coverage
-  dihitung lokal (#17). Sisa upgrade path:
+  bootstrap CI, latensi terukur, `eval_results.json`. RQ3 SELESAI UKUR:
+  kalibrasi tidak transfer (BANK unseen ECE 0.366/cov 0.6% vs in-train 0.026/63%),
+  tapi AUROC error-detection bertahan (0.73 vs 0.87) — dukung tesis System Switch.
+  Sisa upgrade path:
   TypedBench noise-floor ECE, selective/coverage, cost.
 
 ## 4. Threats & gaps (must close before submit)

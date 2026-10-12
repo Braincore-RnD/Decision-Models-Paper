@@ -286,5 +286,5 @@ Decision Index slice BFCL/ToolRet, uji distribusi geser.
 
 | # | Kernel | Env kunci | Status | Kernel link | Hasil |
 |---|---|---|---|---|---|
-| 16 | Recon `predict` API (Colab T4, tanpa train) | `inspect.signature + source + uji 3 items` | belum | – | Desain dump: per item simpan `{bench, gold, pred, maxprob, probs?}` → `items_pred.json`; metrik dihitung LOKAL (tanpa GPU): Brier multiclass rata-rata per-question, NLL `-log p_true`, ECE 10-bin, AUROC error-detection (skor=maxprob), coverage@risk≤5% (sapu threshold maxprob). Model: LOTO-banking dulu (shift!), lalu E (referensi in-dist). |
-| 17 | Dump + metrik RQ3 (Colab T4) | PRED_DUMP per bench → hitung lokal → `metrics.json` | belum | – | – |
+| 16 | Recon `predict` API (Colab T4, tanpa train) | selesai: `predict(model, tok, state, questions)->{answer+probabilities terkalibrasi}`. Infra: `predict_dump.py` + `score_preds.py` (terverifikasi sintetis) | selesai | sesi ephemeral, arsip kode di repo |
+| 17 | Dump + metrik RQ3 (Colab T4) | selesai dua model. LOTO-banking (shift): BANK unseen ECE **0.366**/Brier 0.876/cov 0.6% vs CLINC in-train ECE 0.176/cov 29% — kalibrasi tak transfer, tapi AUROC 0.73 (daya bedakan bertahan). E (in-dist): BANK ECE **0.026**/cov 63%, CLINC ECE 0.09/cov 40%. Klaim coverage 64.2% PAPER mati (max 63% in-dist, ~0% di shift). | selesai | arsip docs/eval/colab/loto-banking/ + ablasi-full/ (items_pred.json + metrics*.json, token-free) |
