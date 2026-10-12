@@ -127,7 +127,7 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 
 ## 4. Threats & gaps (must close before submit)
 
-1. **Own baselines**: rerun Qwen3.5-0.8B in identical protocol (no cited-numbers comparison). Status: eval v7 swap MODEL_ID+FINAL, run #8 belum.
+1. **Own baselines**: rerun Qwen3.5-0.8B in identical protocol (no cited-numbers comparison). Status: DROPPED by scope — angka Unsloth jadi konteks berlabel vendor-reported; pembanding sekelas diganti d1-omni-600M (cited) + LOTO/ablasi internal.
 2. **Seeds**: all runs seed-3407 single; need ≥3 + intervals. Status: train v7 SEED + eval v7 N_BOOT, run #1–3 belum.
 3. **Augment ablations**: rename vs paraphrase vs derived, separately. Status: A vs E token-matched dulu (#6–7 belum); B/C/D label-only, batas lib.
 4. **Broader eval**: Decision Index slices (BFCL/ToolRet) + latency + TypedBench grid. Status: latency + para grid jalan di eval v7; BFCL/ToolRet = tahap dua.
