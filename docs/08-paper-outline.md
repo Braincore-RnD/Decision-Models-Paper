@@ -32,9 +32,9 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 | # | Claim | Evidence (ours) |
 |---|---|---|
 | C1 | Schema augmentation (option rename/paraphrase/derived questions) drives transfer to unseen taxonomies | LOTO banking77: **44% [38–47%]** vs chance 2%; LOTO clinc150: **55.6%** (para 55.6–57.0) vs chance 17% (transfer nyata dua arah, bukan 83% in-dist). REVISI CERITA v5→v6: in-dist A86/E79 + A84/E70 (rows-matched) → lompatan 36→83 dulu adalah confound truncasi (v5 max_seq 2048, skema lebar kepotong; subsampling augmentasi yg membuatnya muat), bukan robustness semantik. Augmentasi = beli transfer + hemat memori, pajak beberapa poin in-domain. |
-| C2 | Under fixed 350M capacity, mixture composition is zero-sum across distributions | v2→v3→v4→v5 seesaw (intent share vs typed); §6 from_scratch |
-| C3 | Hybrid conv-attention backbone (LFM2.5-350M) works as decision backbone | Wiring + training logs; first outside Qwen/Llama/Gemma family |
-| C4 | Untrained-head baselines sit at chance; fine-tuning lifts all columns | before rows 31%/2%/17% (matches Unsloth's 36%/7%/19% pattern) |
+| C2 | Under fixed 350M capacity, mixture composition is zero-sum across distributions | v2→v3→v4→v5 seesaw; A vs E asymmetry (pajak in-domain) mendukung trade-offs lunak (status: parsial — M1–M4 tak jalan; frasa "zero-sum" → "trade-offs", JANGAN klaim formal) |
+| C3 | Hybrid conv-attention backbone (LFM2.5-350M) works as decision backbone | Wiring + training logs; first outside Qwen/Llama/Gemma family (status: terdukung 7 run v7 best-ep2 konsisten) |
+| C4 | Untrained-head baselines sit at chance; fine-tuning lifts all columns | before rows 31%/2%/17% (matches Unsloth's 36%/7%/19% pattern) (status: terdukung tiap eval v7) |
 | C5 | Soft/consensus labels are the missing calibration ingredient | Only typed-decisions has them; ECE 0.052–0.134 range; Open-Jev-type data proposed |
 
 ---
@@ -136,7 +136,9 @@ Catatan terkait: [[00-index-rlcd-and-system-one|Hub RLCD]], [[01-rlcd-theory-and
 4. **Broader eval**: Decision Index slices (BFCL/ToolRet) + latency + TypedBench grid. Status: latency + para grid jalan di eval v7; BFCL/ToolRet = tahap dua.
 5. **Vendor-claim hygiene**: mark Unsloth/TypeSafe numbers as vendor-reported;
    open inconsistencies found (Unsloth r64/1ep vs r16/2ep; Clef 3.8 vs 3.5 code).
+   Status: diterapkan (Qwen + Clef self-reported berlabel; lih. RECOMMENDATION §7).
 6. **License check**: `lfm1.0` full text unread; Open-Jev third-party notices apply.
+   Status: BELUM — wajib sebelum submit.
 
 ## 5. Venue strategy
 

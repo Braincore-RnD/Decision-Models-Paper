@@ -156,3 +156,33 @@ rank naik (v4) bila plafon 350M mau didobrak.
    tiap push dari kernel (token pernah tertulis di riwayat kode).
 7. **Fallback resmi bila Unsloth pecah:** LEAP Finetune / TRL SFT (didukung
    Liquid), lalu head manual `code/train_dec.py`.
+
+---
+
+## 7. Run v7 (2026-10-11–12, 7 train + 6 eval)
+
+Protokol v7 (`code/train_decision_models/unsloth_kaggle_dec.py` living):
+`MAX_SEQ_LEN` 4096, 3 epoch + best-`eval_loss` (early stop patience 2),
+split train/cal/test (`SEED`, `SEED+5`), `FORCE_NEW=1`, warmup fallback.
+Overfit ep-3 konsisten di semua run (best selalu ep-2).
+
+| # | Kernel / job | Env kunci | Hasil kunci |
+|---|---|---|---|
+| 1 | `amalanfadilgaib/lfm-decs1-v7-seed3407-full` | `SEED=3407` | typed-ext 55.9; 43171 decisions |
+| 2 | `…-seed41-full` | `SEED=41` | typed-ext 53.3; best ep-2 (overfit 0.72→0.90) |
+| 3 | `…-seed42-full` | `SEED=42` | typed-ext 55.5; best ep-2 (0.62→1.01) |
+| 4 | `…-loto-banking-full` | `HOLDOUT_TAXONOMY=banking77` | BANKING77 transfer **44% [38–47%]** (eval #9) |
+| 5 | `…-loto-clinc-full` | `HOLDOUT_TAXONOMY=clinc150` | CLINC150 transfer **55.6%** (eval #12, Colab) |
+| 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
+| 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
+
+Eval: #9 LOTO-banking (`N_BOOT=30`), #10/#11 A vs E (`N_BOOT=30`),
+#12 LOTO-clinc (Colab T4, `N_BOOT=0`), #13–15 tiga seed lean (`N_BOOT=0`).
+In-dist 3-seed: typed 54.9, BANK 81.3, CLINC 72.9 (test identik).
+RQ3: `predict_dump.py` → `docs/eval/colab/*/items_pred.json` →
+`score_preds.py` → `metrics*.json` (ECE transfer 0.026→0.366, AUROC bertahan).
+
+Artefak per run: final+merged+ckpt+`run_meta.json` di output kernel
+masing-masing; hasil ringan di `docs/eval/`; tracker di
+`docs/RECOMMENDATION.md` §6.4. Takeaway: `RECOMMENDATION.md` §7
+(transfer 44/55.6, confound truncasi, kalibrasi tak transfer).

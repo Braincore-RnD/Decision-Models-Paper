@@ -240,25 +240,25 @@ Untuk target Scopus Q3/Q4, saya akan memposisikan artikel ini sebagai empirical 
 
 ### 6.1 Inkonsistensi yang harus direkonsiliasi dulu
 
-1. **Versi rilis ganda**: `RUN_LOG` §1 baris 21 rilis = v2 (isi HF), verdict §1 baris 45 rilis = v3 (ECE 0.052). Paper klaim v6 (83%/73%). Satu naskah tidak boleh mencampur tiga checkpoint seolah satu protokol.
-2. **Holdout tidak comparable**: v2 = 72% (mixture holdout) vs v3–v6 = 55–63%* (rekonstruksi typed-only). Footnote sudah jujur, tapi tabel utama tetap disandingkan — reviewer sebut misleading.
-3. **v4–v6 tanpa kronologi kernel**: tabel hasil ada, kronologi §2 berhenti di v3 + push. Tidak reproducible.
-4. **ECE ganda**: 0.052 (PAPER/RUN_LOG v3) vs 0.083 (model card HF). Tentukan mana yang dari cal-set terpisah.
-5. **Latency & coverage tanpa sumber**: `sub-45ms`, `Coverage@Risk 64.2%` ada di PAPER §6, tidak ada di RUN_LOG. Ukur di T4 atau turunkan klaim.
+1. **Versi rilis ganda** → SELESAI: v7 = satu resep, tiap run kernel + `run_meta` sendiri (§6.4, `RUN_LOG.md` §7). Angka lama v2/v3/v6 = histori, tidak dicampur ke klaim.
+2. **Holdout tidak comparable** → SELESAI: holdout dari artefak train per run + label distribusi di tiap tabel eval; fallback rekonstruksi ditandai WARN.
+3. **v4–v6 tanpa kronologi kernel** → SELESAI sebagian: v7 lengkap (link + meta); v4–v6 tetap tanpa link = histori, tidak dipakai klaim.
+4. **ECE ganda** → SELESAI: ECE dilaporkan per run per set (cal/test/bench, §7.1/7.4); angka tunggal 0.052/0.083 dipensiunkan.
+5. **Latency & coverage tanpa sumber** → SELESAI: latensi terukur 56–249ms/item; coverage realistis 63%→~0%; klaim lama mati (§7.4–7.5).
 
 ### 6.2 Blocker metodologis (alasan desk-reject Q3)
 
-1. **Bukan zero-shot**: BANKING77/CLINC150 ikut di train mixture (13 sumber), eval di test split yang sama = in-distribution + dekon 13-gram. Klaim C1 harus turun ke "cross-split transfer" sampai ada run leave-one-taxonomy-out.
-2. **Single seed + baseline vendor**: semua run seed-3407; Qwen 73/74/76% = angka Unsloth docs, bukan rerun protokol identik. Butuh ≥3 seeds + bootstrap CI + rerun Qwen sendiri.
-3. **Augmentasi tercampur token budget**: v5 34.8k → v6 43.1k decisions. Kenaikan 36%→83% bisa dari tambah token, bukan augmentasi. Butuh kontrol token-matched + ablasi rename vs paraphrase vs derived terpisah.
+1. **Bukan zero-shot** → SELESAI: LOTO dua arah (§7.2); angka in-dist dilabeli apa adanya.
+2. **Single seed + baseline vendor** → SELESAI sebagian: 3 seed + CI ✓; Qwen rerun dicoret (scope) → konteks berlabel vendor.
+3. **Augmentasi tercampur token budget** → SELESAI: rows-matched A vs E + residual diungkap (§7.3); B/C/D = tahap dua.
 
-### 6.3 Checklist minimal sebelum submit (lazy path — v7 script-ready, run GPU pending)
+### 6.3 Checklist minimal sebelum submit (lazy path — SELESAI run #1–17, tersisa tulis paper)
 
-- [ ] LOTO BANKING77 / CLINC150 (2 train): `HOLDOUT_TAXONOMY=banking77|clinc150`, transfer beneran?
-- [ ] Rerun Qwen3.5-0.8B protokol identik (eval v7: `MODEL_ID`+`FINAL` diganti) + 3 seeds resep v6 (`SEED=3407/41/42`) + bootstrap CI (`N_BOOT`)
-- [ ] Ablasi augmentasi token-matched: `AUG_MODE=none|full` + `MAX_DECISIONS` sama (A vs E dulu; B/C/D dicatat sbg full — batas lib, lihat header train v7)
-- [ ] Kalibrasi: cal-set terpisah dari test (split 3-way v7, `calibrate` full dict); Brier/NLL/AUROC + uji distribusi geser = tahap dua → berjalan #16-17 (`predict` API ditemukan via DUMP_API, dump per-item + hitung lokal)
-- [ ] Split train/cal/test dikunci sebelum build (`SEED`, `SEED+5`); C5 (soft labels) turun ke future work
+- [x] LOTO BANKING77 / CLINC150: 44% [38–47%] + 55.6% (para 55.6–57.0) — transfer beneran, §7.2
+- [x] 3 seeds resep + bootstrap CI: typed 55.9/53.3/55.5; BANK/CLINC 3-seed §7.1. Qwen rerun DROPPED (scope) → angka vendor sbg konteks berlabel
+- [x] Ablasi token-matched A vs E (rows 28000=28000): A 86/84 vs E 79/70, §7.3. B/C/D = tahap dua
+- [x] Kalibrasi cal≠test + Brier/NLL/AUROC + shift: ECE transfer 0.026→0.366, AUROC bertahan, §7.4 (#16–17)
+- [x] Split dikunci (`SEED`, `SEED+5`); C5 future work
 
 ### 6.4 Run plan v7 — tracker status (update tiap kernel jalan)
 
@@ -331,7 +331,7 @@ Dukung tesis System Switch di backbone hybrid kecil. Klaim coverage 64.2% PAPER 
 
 ### 7.6 Sisa kerja (eksperimen inti cukup Q3/Q4)
 
-1. Sinkron `RUN_LOG.md` v7 (tracker §6.4 yang current).
+1. Sinkron `RUN_LOG.md` v7 → SELESAI (`RUN_LOG.md` §7).
 2. Tulis ulang `PAPER.md` §5 + `paper/sections/` dari angka §7.1–7.5; bunuh klaim
    lama (83%/73% zero-shot, sub-45ms, coverage 64.2%, "augmentasi driver in-dist").
 3. Tahap-dua opsional: B/C/D terpisah, BFCL/ToolRet + MASSIVE + macro-F1, OOS/OOD eksplisit.

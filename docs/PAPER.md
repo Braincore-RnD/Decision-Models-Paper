@@ -1,3 +1,6 @@
+<!-- STATUS 2026-10-12: klaim angka di draft ini KEDALUWARSA (83%/73% zero-shot,
+sub-45ms, coverage 64.2%, "augmentasi driver in-dist"). Angka final:
+RECOMMENDATION.md §7. Jangan kutip draft ini sebelum §5 ditulis ulang. -->
 # Calibrating System-One Decision Models on Hybrid Convolution-Attention Backbones: An Empirical Study on LFM-350M
 
 **Authors:**
