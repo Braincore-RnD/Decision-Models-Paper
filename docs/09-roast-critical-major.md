@@ -158,3 +158,24 @@ Status per issue — DONE / PARTIAL / OPEN:
 - #23 PARTIAL: ambiguitas 2-vs-3 selesai — kode (`_INTENT_ALTS` 3 entri, varian 0 = kanonis) → teks "canonical + 2 variants"; typed range-nol + grid ulang → Fase 2.
 - #24 DONE: "honest/reproduced/none-touch/calibrated/load-bearing" dibuang; limitations dipetakan ke 3 temuan.
 - #25 OPEN (Fase 1; Algorithm 1 dipertahankan sementara).
+
+## Eksekusi Fase 1 lokal — PR #30 (`feat/roast-fase1`, CPU saja)
+
+Dumps `items_pred.json` ternyata menyimpan full prob vector + gold → 80% Fase 1
+jalan lokal. Berat terukur: bootstrap 2000 × 3 bench ≈ 70 detik/file;
+figure <3 detik (`uv run --with matplotlib`, tanpa install).
+
+- #9 DONE (parsial, tanpa GPU): `score_preds.py --boot 2000` dari dumps →
+  `docs/eval/colab/{loto-banking,ablasi-full}/metrics_ci.json` (baru, file lama
+  tak disentuh). LOTO-banking 43.4 [39.4–47.6]; E-banking 79.6 [76–83].
+  A dan LOTO-clinc tanpa dumps → point estimates + disclosure di caption.
+- #8 DONE (parsial): TS-oracle refit per-tipe dari prob vector (eksak via
+  shift-invariance softmax) → Tab. `tab:ts` baru: LOTO-shift 0.366 → TS-id
+  0.220 → oracle 0.104. Klaim "does not transfer" direvisi jujur jadi
+  "transfers partially" (abstrak/intro/results/discussion). TS-oracle penuh +
+  AURC → butuh cal dumps (Colab).
+- #25 PARTIAL: `fig_reliability.pdf` + `fig_riskcover.pdf` (matplotlib lokal,
+  E-in-dist vs LOTO-shift) + diagram tikz `figures/arch.tex`. Naskah 6→7
+  halaman. Loss-curve figure → butuh train console (Colab). Tab. loto → para
+  belum digabung; Algorithm 1 dipertahankan.
+- #19 OPEN: butuh `cal_items.pt` (hanya di kernel output) → Colab.

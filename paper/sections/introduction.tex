@@ -28,12 +28,13 @@ with fixed test sets, are:
 \item \textbf{A confound found and fixed:} an earlier 36\%\,$\to$\,83\%
   augmentation jump was context truncation ($2048$ tokens cutting wide
   schemas), not semantic robustness. Row-matched canonical training wins
-  in-distribution (86\%/84\% vs 79\%/70\%); augmentation coincides with transfer plus
+  in-distribution (86\%/84\% vs 80\%/70\%); augmentation coincides with transfer plus
   memory savings at a small in-domain tax.
 \item \textbf{Calibration under shift:} ECE rises from 0.026 in-distribution to
   0.366 on the held-out taxonomy while error-detection AUROC only falls from
   0.87 to 0.73; autonomous coverage at 5\% risk collapses from 63\% to near
-  zero. Temperature scaling fit in-distribution does not transfer.
+  zero. Temperature scaling fit in-distribution transfers only partially
+  (0.366\,$\to$\,0.220 vs 0.104 oracle).
 \item \textbf{Artifacts:} seven training runs and six evaluation kernels with
   checkpoints, per-item dumps, and logs archived for reproduction.
 \end{enumerate}

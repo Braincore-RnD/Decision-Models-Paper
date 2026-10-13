@@ -33,6 +33,8 @@ $[\mathbf{f}_q; \mathbf{o}; \mathbf{f}_q\odot\mathbf{o};
 |\mathbf{f}_q-\mathbf{o}|]$ gated by $\sigma(g)$. Requesting a plain LM from
 the Unsloth API attaches this Clef-design head by default, confirming the
 lineage. Inference is one forward pass with per-question softmax.
+Figure~\ref{fig:head} sketches the data flow.
+\input{figures/arch}
 
 \subsection{Parameter-Efficient Adaptation}
 Full finetuning of 350M parameters per recipe is wasteful when the backbone
