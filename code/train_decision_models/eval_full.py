@@ -79,24 +79,25 @@ for name, full in WANT:
     rows = load_source(name, "test", limit=None, seed=SEED)
     t0, n_ok, n = time.perf_counter(), 0, 0
     skip = done.get((name, 0), 0)
-    for ci in range(0, len(rows), CHUNK):
-        for r in rows[ci:ci + CHUNK]:
-            if skip > 0:
-                skip -= 1
-                continue
-            crow = canonical_row(r)
-            try:
-                ans = FastDecisionModel.predict(model, tok, crow["state"], crow["questions"])
-                dump.append({"bench": name, "variant": 0, "gold": crow.get("gold"), "answers": ans})
-                n += 1
-            except Exception as e:
-                dump.append({"bench": name, "variant": 0, "gold": crow.get("gold"),
-                             "error": f"{type(e).__name__}: {e}"})
-        print(f"{name} chunk {ci}-{ci + CHUNK}: {n} rows", flush=True)
-        save()  # tahan banting: tiap chunk tersimpan, VM mati pun bisa RESUME=1
-    dt = time.perf_counter() - t0
-    summary[name] = {"n_rows": n, "ms_per_row": 1000 * dt / max(n, 1)}
-    print(f"{name} full: {n} rows, {summary[name]['ms_per_row']:.0f}ms/row", flush=True)
+    if os.environ.get("PARA_ONLY", "0") != "1":
+        for ci in range(0, len(rows), CHUNK):
+            for r in rows[ci:ci + CHUNK]:
+                if skip > 0:
+                    skip -= 1
+                    continue
+                crow = canonical_row(r)
+                try:
+                    ans = FastDecisionModel.predict(model, tok, crow["state"], crow["questions"])
+                    dump.append({"bench": name, "variant": 0, "gold": crow.get("gold"), "answers": ans})
+                    n += 1
+                except Exception as e:
+                    dump.append({"bench": name, "variant": 0, "gold": crow.get("gold"),
+                                 "error": f"{type(e).__name__}: {e}"})
+            print(f"{name} chunk {ci}-{ci + CHUNK}: {n} rows", flush=True)
+            save()  # tahan banting: tiap chunk tersimpan, VM mati pun bisa RESUME=1
+        dt = time.perf_counter() - t0
+        summary[name] = {"n_rows": n, "ms_per_row": 1000 * dt / max(n, 1)}
+        print(f"{name} full: {n} rows, {summary[name]['ms_per_row']:.0f}ms/row", flush=True)
     sub = rows[:PARA_N]
     for v in (1, 2):
         t0, n2 = time.perf_counter(), 0
