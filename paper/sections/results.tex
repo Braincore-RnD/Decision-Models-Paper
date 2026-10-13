@@ -7,11 +7,76 @@ On identical tests, the base recipe gives typed-decisions 55.9/53.3/55.6
 exactly why single-seed reporting is insufficient. Untrained-head baselines sit
 at chance (31\%/2\%/17\%).
 
+\begin{table}[htbp]
+\caption{In-distribution accuracy on identical tests (500/500/400 items).}
+\label{tab:seeds}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lccc}
+\toprule
+Seed & typed & BANKING77 & CLINC150 \\
+\midrule
+3407 & 55.9 & 76.8 & 68.2 \\
+41 & 53.3 & 83.4 & 76.6 \\
+42 & 55.6 & 83.8 & 73.8 \\
+Mean & 54.9 & 81.3 & 72.9 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
 \subsection{Transfer: Leave-One-Taxonomy-Out}
 With BANKING77 fully held out, accuracy reaches \textbf{44\% [38--47\%]}
 against 2\% chance (paraphrase median 42.8\%, range 42.2--43.6); with CLINC150
 held out, \textbf{55.6\%} (paraphrase 55.6--57.0) against 17\% chance. Transfer
 is substantial but partial versus 81.3\%/72.9\% in-distribution.
+
+Transfer is wording-robust, not prompt luck: a 3-variant grid (instruction
+rewording plus option-order shuffling) moves LOTO BANKING77 only across
+42.2--43.6\% (median 42.8\%) and LOTO CLINC150 across 55.6--57.0\%, while
+in-distribution A holds 86.0--86.4\% on BANKING77. Ranges this tight mean the
+effect lives in schema semantics, not phrasing.
+
+\begin{table}[htbp]
+\caption{Paraphrase grid: median [range] over 3 wording/option-order variants.}
+\label{tab:para}
+\begin{center}
+\setlength{\tabcolsep}{3pt}
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Model & BANK77 & CLINC150 \\
+\midrule
+LOTO-banking & 42.8 [42.2--43.6] & --- \\
+LOTO-clinc & --- & 56.0 [55.6--57.0] \\
+A canonical & 86.0 [86.0--86.4] & 84.6 [84.4--84.8] \\
+E augmented & 79.4 [79.0--80.2] & 70.0 [69.8--70.4] \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{LOTO transfer vs in-distribution means (accuracy \%).}
+\label{tab:loto}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Setting & BANKING77 & CLINC150 \\
+\midrule
+Held out (transfer) & 44 [38--47] & 55.6 \\
+In-distribution mean & 81.3 & 72.9 \\
+Chance & 2 & 17 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
 
 \subsection{Ablation: The Truncation Confound}
 Row-matched canonical (A) vs full-augmentation (E) training gives:
@@ -20,6 +85,7 @@ Row-matched canonical (A) vs full-augmentation (E) training gives:
 \caption{Ablation A vs E (28\,000 rows each; decisions 31\,754 vs 39\,560).}
 \label{tab:ablation}
 \begin{center}
+\setlength{\tabcolsep}{4pt}
 \begin{small}
 \begin{tabular}{lccc}
 \toprule
@@ -41,6 +107,32 @@ savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
 tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
 
+Overfitting dynamics are strikingly consistent: eval-loss falls through epoch 2
+then spikes at epoch 3 in every fully-logged run, so best-checkpoint selection
+always restores epoch 2 (Table~\ref{tab:overfit}).
+
+\begin{table}[htbp]
+\caption{Eval-loss at epochs 2 and 3 (best checkpoint underlined).}
+\label{tab:overfit}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Run & Epoch 2 & Epoch 3 \\
+\midrule
+seed41 & \underline{0.72} & 0.90 \\
+seed42 & \underline{0.62} & 1.01 \\
+LOTO-banking & \underline{0.59} & 0.72 \\
+LOTO-clinc & \underline{0.64} & 0.87 \\
+Ablation A & \underline{0.76} & 0.95 \\
+Ablation E & \underline{0.57} & 0.65 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
 \subsection{Calibration Under Shift}
 On BANKING77, ECE rises from \textbf{0.026} in-distribution to \textbf{0.366}
 held-out (Brier 0.281\,$\to$\,0.876); autonomous coverage at 5\% risk collapses
@@ -50,10 +142,90 @@ separates right from wrong answers, confirming that accuracy, calibration, and
 sensitivity are distinct quantities~\cite{systemswitch2026}. Measured T4 latency
 is 56--249\,ms/item depending on schema width.
 
+\begin{table}[htbp]
+\caption{Calibration per bench: LOTO (shift) vs E (in-distribution).}
+\label{tab:rq3}
+\begin{center}
+\setlength{\tabcolsep}{3pt}
+\begin{footnotesize}
+\begin{tabular}{llcccc}
+\toprule
+Model & Bench & Acc & ECE & AUROC & Cov@5\% \\
+\midrule
+LOTO & typed & 59 & 0.053 & 0.64 & 3 \\
+LOTO & banking* & 43 & 0.366 & 0.73 & 0.6 \\
+LOTO & clinc & 65 & 0.176 & 0.82 & 29 \\
+E & typed & 59 & 0.121 & 0.62 & 0.1 \\
+E & banking & 80 & 0.026 & 0.87 & 63 \\
+E & clinc & 70 & 0.090 & 0.85 & 40 \\
+\bottomrule
+\end{tabular}
+\end{footnotesize}
+\end{center}
+\end{table}
+
+\subsection{External Context}
+Table~\ref{tab:external} places our accuracy beside vendor-reported numbers.
+Metric and protocol boundaries differ per row (Decision Index reports macro-F1
+over full tests; Unsloth reports accuracy under its own mixture; ours is
+accuracy on identical 500/500/400 tests), so no cross-row ranking is claimed.
+Two observations survive the boundary: (i)~a deployed 421M system (Laya) sits
+near chance on intent taxonomies while our 350M reaches 81--86\%, i.e.\ recipe
+dominates size in this class; (ii)~9--27B systems lead absolutely (90--97\%),
+as expected, with Cloudflare's own rows flagged self-reported by the board.
+
+\begin{table}[htbp]
+\caption{Context table. Ours: accuracy on identical tests. Starred rows:
+vendor-reported under own protocols and metrics (acc vs macro-F1).}
+\label{tab:external}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{llccc}
+\toprule
+Model & Params & BANK77 & CLINC150 & typed \\
+\midrule
+Ours mean (acc) & 350M & 81.3 & 72.9 & 54.9 \\
+Ours canonical A (acc) & 350M & 86 & 84 & 54 \\
+Qwen3.5-0.8B* (acc) & 0.8B & 74 & 76 & 73 \\
+Clef* (F1) & 27B & 94.2 & 97.4 & --- \\
+Clef-flash* (F1) & 9B & 90.9 & 66.8 & --- \\
+Jev* (F1) & closed & 79.7 & 89.3 & --- \\
+Kev 9B* (F1) & 9B & 84.8 & 79.0 & --- \\
+Laya* (F1) & 421M & 14.3 & 3.2 & --- \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+\subsection{Capacity Frontier}
+Typed-decisions plateaus at 54--59\% across all seven runs while Qwen3.5-0.8B
+reports 73\%: unlike single wide taxonomies (handled well even at 150
+classes), its records demand up to five interdependent judgments per state
+(risk, review need, routing) that stretch 16 layers at width 1\,024. The gap
+is architectural capacity, not recipe, and it bounds deployment scope to
+single-question routing rather than joint multi-field reasoning.
+
 \subsection{Discussion}
-For practitioners: fit schemas in context first (truncation dwarfs recipe
-effects), buy augmentation for transfer and memory rather than in-domain
-points, and never trust in-distribution temperatures under shift---gate
-automation on AUROC-validated escalation instead. Limits: A/E are single-seed
-with a batch-size confound; rename/paraphrase/derived are not yet separated;
-no same-protocol Qwen rerun; OOS/OOD and macro-F1 slices are future work.
+Fixed 350M capacity forces mixture trade-offs: doubling the typed-decisions
+share shifted BANKING77 +2 but CLINC150 $-$7 without lifting either, i.e.\
+weights relocate capacity rather than create it. For practitioners: fit schemas
+in context first (truncation dwarfs recipe effects), buy augmentation for transfer and memory rather than in-domain
+points, and never trust in-distribution temperatures under shift. Deploy with
+an escalation policy
+\begin{equation}
+\hat{y}(x) = \arg\max_k p_k(x) \text{ if } \max_k p_k(x)\ge\tau
+\text{ else ESCALATE},
+\end{equation}
+with $\tau$ set from AUROC-validated coverage analysis (our models sustain 63\%
+autonomy in-distribution at 5\% risk but near zero under shift, so $\tau$ must
+be re-fit per deployment distribution). Limits: A/E are single-seed
+with a batch-size confound (4$\times$8 vs 8$\times$4 at equal effective size 32,
+forced by full-schema OOM); rename/paraphrase/derived types are not yet
+separated, so the transfer credit cannot be attributed to one mechanism; no
+same-protocol Qwen rerun exists (vendor numbers are labeled context only);
+OOS/OOD slices and macro-F1 leaderboard slices are future work; and the
+\texttt{lfm1.0} license text is still unread, which must precede any release
+claim. None of these touch the three headline findings, each of which rests on
+fixed test sets with disclosed residuals.

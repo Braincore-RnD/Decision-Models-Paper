@@ -7,8 +7,50 @@ eval-loss (epoch-3 overfitting was consistent, so the best checkpoint is always
 epoch 2). Evaluation uses identical test sets everywhere
 (BANKING77/CLINC150 500 items, typed-decisions 400): canonical accuracy plus a
 3-variant paraphrase grid (wording and option-order perturbations), bootstrap
-95\% intervals, measured per-item latency, and per-item probability dumps scored
+95\% intervals (100 resamples on GPU runs), measured per-item latency on T4,
+and per-item probability dumps (1\,400 rows each) scored
 with Brier, NLL, 10-bin ECE, error-detection AUROC, and coverage at 5\% risk.
+
+\begin{algorithm}[htbp]
+\caption{Three-layer evaluation with paraphrase and probability audit.}
+\label{alg:eval}
+\begin{algorithmic}
+\STATE Build canonical benches once per tokenizer (typed 400, intent 500 each)
+\STATE \textbf{Before:} backbone + random head (chance reference)
+\STATE \textbf{After:} trained checkpoint; time per-item latency
+\STATE \textbf{Robustness:} 2 wording/order variants per bench, report median+range
+\STATE \textbf{Uncertainty:} bootstrap 95\% CI over items (GPU runs)
+\STATE \textbf{Calibration:} cross-fitted ECE on cal split; \texttt{predict} dump
+\STATE \hspace{\algorithmicindent}per-item probabilities $\to$ Brier/NLL/AUROC/coverage offline
+\end{algorithmic}
+\end{algorithm}
 Vendor numbers (Unsloth Qwen, Cloudflare Clef) are cited as labeled context,
 never as rerun baselines; the size-matched reference is d1-omni-600M from the
-same LFM lineage~\cite{liquid-d1}.
+same LFM lineage~\cite{liquid-d1}. Every run archives adapters, head, merged
+weights, and \texttt{run\_meta.json} in its kernel output; lightweight results
+(\texttt{eval\_results.json}, probability dumps, metric tables) are versioned,
+so each number below traces to a logged artifact.
+
+\begin{table}[htbp]
+\caption{Hyperparameters (all seven training runs).}
+\label{tab:hyper}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lc}
+\toprule
+Setting & Value \\
+\midrule
+Backbone & LFM2.5-350M, 4-bit, frozen \\
+LoRA rank / alpha / dropout & 16 / 16 / 0 \\
+Backbone LR / head LR & $2\times10^{-4}$ / $1\times10^{-4}$ (auto) \\
+Schedule / warmup & cosine / 5\% (fallback steps on old stack) \\
+Effective batch & 32 (8$\times$4; 4$\times$8 for full schemas) \\
+Epochs / selection & 3, best eval-loss, patience-2 early stop \\
+Context & 4\,096 tokens \\
+Seeds & 3407 / 41 / 42 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}

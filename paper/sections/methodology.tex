@@ -1,27 +1,88 @@
 \section{Proposed Methodology}
-\subsection{Backbone and Decision Head}
-We adapt \texttt{LiquidAI/LFM2.5-350M}~\cite{liquid-lfm2} (16 layers: 10
-double-gated convolutional LIV blocks plus 6 grouped-query attention blocks)
-with QLoRA (rank 16) following the Unsloth decision recipe~\cite{unsloth-decision}.
-A JointSchemaHead projects final hidden states to width 256, routes candidate
-options over full-sequence memory with 2 cross-attention layers, conditions
-each field through 4 transformer decoder layers with a learned type embedding,
-and scores options via a dual path: a lexical prior plus a joint interaction
-MLP over $[\mathbf{f}_q; \mathbf{o}; \mathbf{f}_q\odot\mathbf{o};
-|\mathbf{f}_q-\mathbf{o}|]$. Inference is one forward pass; outputs are
-per-question softmax probabilities over \texttt{choice}, \texttt{score}, and
-\texttt{noul} primitives. Context length is 4\,096 so full 77/150-option
-schemas fit untruncated---Section~\ref{sec:results} shows why this matters.
+\subsection{Hybrid Backbone}
+We adapt \texttt{LiquidAI/LFM2.5-350M}~\cite{liquid-lfm2}: 16 layers (10
+double-gated short-range convolutional LIV blocks plus 6 grouped-query
+attention blocks), 32K context, 65\,536 vocabulary. Convolutions give
+constant-memory state caching while attention preserves associative recall---an
+unexplored substrate for decision heads, which prior work mounts on dense
+bidirectional encoders~\cite{convai-laya} or decoder-only
+transformers~\cite{cloudflare-clef}. The choice is deliberate, not incidental:
+intent routing leans on short-range lexical matching (double-gated
+convolutions cache it in constant memory) plus label-set associative recall
+(a few GQA layers suffice), so a hybrid trunk fits edge serving where a dense
+transformer of equal quality would not. Our feasibility result (Section~6) is
+therefore also a deployment result: the same weights that route intents at
+81\% fit a T4 with 4-bit quantization and no KV-cache growth from generation.
+
+\subsection{Canonical Input Encoding}
+Each instance (state $S$, questions $Q=\{q_j\}$ with types
+$\tau_j\in\{\text{choice},\text{score},\text{noul}\}$ and option criteria $O_j$)
+is rendered deterministically: state text followed by per-question blocks
+(ID, type, instruction, named options with descriptions). When length exceeds
+budget, truncation cuts strictly the tail of $S$---schema text is never cut,
+and rows whose schema alone overflows are skipped with a logged reason. This
+invariant is load-bearing for Section~\ref{sec:results}.
+
+\subsection{JointSchemaHead}
+For final hidden states $\mathbf{H}\in\mathbb{R}^{B\times L\times D}$,
+projected to width $W=256$, candidate options attend to full-sequence memory
+(2 cross-attention layers), fields are conditioned through 4 decoder layers
+with a learned type embedding $\mathbf{e}_{\tau}$, and logits combine a lexical
+prior with a joint MLP over
+$[\mathbf{f}_q; \mathbf{o}; \mathbf{f}_q\odot\mathbf{o};
+|\mathbf{f}_q-\mathbf{o}|]$ gated by $\sigma(g)$. Requesting a plain LM from
+the Unsloth API attaches this Clef-design head by default, confirming the
+lineage. Inference is one forward pass with per-question softmax.
+
+\subsection{Parameter-Efficient Adaptation}
+Full finetuning of 350M parameters per recipe is wasteful when the backbone
+already models language. Low-Rank Adaptation (LoRA)~\cite{hu2021lora} freezes
+$W_0$ and learns $\Delta W = BA$ with $B\in\mathbb{R}^{d\times r}$,
+$A\in\mathbb{R}^{r\times k}$, $r\ll\min(d,k)$, cutting trainable parameters by
+orders of magnitude while keeping the forward pass
+$h = W_0x + \frac{\alpha}{r}BAx$. QLoRA~\cite{dettmers2023qlora} additionally
+quantizes the frozen backbone to 4-bit, so a 350M model trains in T4 memory
+with adapters and optimizer states as the only full-precision footprint.
+We use rank $r=16$, $\alpha=16$, dropout $0$, targets on all projection layers
+(\texttt{q\_proj}, \texttt{k\_proj}, \texttt{v\_proj}, \texttt{out\_proj},
+\texttt{in\_proj}, \texttt{w1--w3}), Unsloth gradient checkpointing, and seeded
+initialization. The backbone stays frozen; only adapters and the decision head
+train. The trainer splits the optimizer automatically: backbone adapters at the
+configured LR ($2\times10^{-4}$) and head parameters at $1\times10^{-4}$.
+
+\subsection{Training Pipeline (Verified Against Unsloth 2026.10.3)}
+\textit{Mixture.} Rows are sampled by weight (intent taxonomies $3\times$)
+with 2$\times$ headroom so decontamination never forces resampling; sources
+flagged eval-only are rejected from training by the library.
+\textit{Augmentation} (treatment E) draws per-row variations with default
+probabilities: option rename 0.3 (letter/code ids, meaning moved into
+descriptions), instruction paraphrase 0.4, instruction drop 0.1, derived
+binary questions 0.5, question-id rename 0.3, state-as-text 0.3, field shuffle
+on, and wide taxonomies subsampled to $\text{max\_options}=24$ around the gold
+label. Treatment A uses canonical rows.
+\textit{Items.} Each decision becomes
+$\{\text{input\_ids}, \text{markers}, \text{qtype}, \text{target}, \text{label}\}$;
+unrenderable rows are skipped with counted reasons (e.g.\ non-binary noul
+criteria, over-context schemas), and over-length inputs truncate state tails
+only. \textit{Split.} Holdout takes whole rows (never splitting a row's
+questions across train/holdout) at 10\% capped at 400 decisions; we halve it
+into calibration and test with a seeded shuffle.
+\textit{Optimize.} Per-epoch evaluation and checkpointing keep best eval-loss
+(epoch-3 overfitting was consistent, so epoch 2 always wins) with patience-2
+early stopping. \textit{Calibrate.} Dual temperatures are fit by L-BFGS with
+two-fold cross-fitting: reported numbers score each half of the rows with
+temperatures fit on the other half, so calibration error is never measured
+with in-sample temperatures. \textit{Evaluate/predict} use the served
+temperatures; \texttt{predict} additionally returns per-option probabilities
+for proper-scoring analysis.
 
 \subsection{Multi-Objective Loss}
 \begin{equation}
 \mathcal{L} = \mathcal{L}_{\text{LS-CE}} + \lambda_{\text{Brier}}\,
 \mathcal{L}_{\text{Brier}} + \lambda_{\text{ord}}\,\mathcal{L}_{\text{Ordinal}},
 \end{equation}
-combining label-smoothed cross-entropy ($\epsilon=0.05$), a Brier calibration
-penalty against one-hot targets that punishes overconfident errors, and an
-ordinal partial-credit term for \texttt{score} types.
-
-\subsection{Post-Hoc Calibration}
-Dual temperature scaling $z' = z/(T_{\text{head}}\cdot T_{\text{rel}}[\tau])$ is
-fit with L-BFGS on the calibration split only, minimizing NLL over hard labels.
+with label smoothing~\cite{muller2019label}
+($\tilde{y}=(1-\epsilon)y+\epsilon/K$, $\epsilon=0.05$), a Brier penalty
+against one-hot targets punishing overconfident errors, and an ordinal partial
+credit for \texttt{score} types. (The trainer's reference-KL term defaults to
+zero and is unused here.)

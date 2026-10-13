@@ -6,6 +6,14 @@ reproduced numbers throughout. Our main methodological finding is a cautionary
 one: a dramatic augmentation effect was context truncation in disguise, and
 calibration fit in-distribution collapses under shift even as error detection
 survives. Artifacts---seven training runs, six evaluation kernels, per-item
-dumps, and logs---are archived for reproduction. Future work separates
+dumps, and logs---are archived for reproduction. Checkpoints (adapters, head,
+merged weights) plus \texttt{run\_meta.json} live in per-run kernel outputs;
+lightweight results (\texttt{eval\_results.json}, probability dumps, metric
+tables) are versioned in \texttt{docs/eval/}, and every paper number traces to
+a logged run. The immediate next steps are separating augmentation types
+(rename vs paraphrase vs derived) to attribute the transfer credit, adding
+OOS/OOD and macro-F1 leaderboard slices, and replacing single post-hoc
+temperatures with shift-aware calibration (per-domain temperatures or a
+proper-loss RLCD stage~\cite{gao2026openjev}). Future work separates
 augmentation types, extends OOS/OOD and leaderboard slices, and explores
 shift-aware calibration.
