@@ -4,11 +4,14 @@
 On identical tests, the base recipe gives typed-decisions 55.9/53.3/55.6
 (mean 54.9), BANKING77 76.8/83.4/83.8 (mean 81.3), and CLINC150
 68.2/76.6/73.8 (mean 72.9). Seed spread on BANKING77 (76.8 vs $\sim$83.5) is
-exactly why single-seed reporting is insufficient. Untrained-head baselines sit
-at chance (31\%/2\%/17\%).
+exactly why single-seed reporting is insufficient. Untrained-head baselines
+(backbone + random head) sit at 30.6\%/2.4\%/17.2\%---far above uniform chance
+(1.3\% for 77 classes, 0.67\% for 150), evidence of a lexical prior that works
+without training. Section~6 reports transfer against these untrained-head
+numbers, not against chance.
 
 \begin{table}[htbp]
-\caption{In-distribution accuracy on identical tests (500/500/400 items).}
+\caption{In-distribution accuracy on identical tests (typed 400; BANKING77/CLINC150 500 each).}
 \label{tab:seeds}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -28,19 +31,22 @@ Mean & 54.9 & 81.3 & 72.9 \\
 \end{table}
 
 \subsection{Transfer: Leave-One-Taxonomy-Out}
-With BANKING77 fully held out, accuracy reaches \textbf{44\% [38--47\%]}
-against 2\% chance (paraphrase median 42.8\%, range 42.2--43.6); with CLINC150
-held out, \textbf{55.6\%} (paraphrase 55.6--57.0) against 17\% chance. Transfer
+With BANKING77 fully held out, accuracy reaches \textbf{43.4\% [38--47\%]}
+against a 2.4\% untrained-head baseline (uniform chance 1.3\%; paraphrase median
+42.8\%, range 42.2--43.6); with CLINC150
+held out, \textbf{55.6\%} (paraphrase 55.6--57.0) against a 17.2\% untrained-head
+baseline (uniform chance 0.67\%). Transfer
 is substantial but partial versus 81.3\%/72.9\% in-distribution.
 
-Transfer is wording-robust, not prompt luck: a 3-variant grid (instruction
+Transfer is wording-robust, not prompt luck: a grid of canonical plus 2
+variants (instruction
 rewording plus option-order shuffling) moves LOTO BANKING77 only across
 42.2--43.6\% (median 42.8\%) and LOTO CLINC150 across 55.6--57.0\%, while
 in-distribution A holds 86.0--86.4\% on BANKING77. Ranges this tight mean the
 effect lives in schema semantics, not phrasing.
 
 \begin{table}[htbp]
-\caption{Paraphrase grid: median [range] over 3 wording/option-order variants.}
+\caption{Paraphrase grid: median [range] over canonical + 2 wording/option-order variants.}
 \label{tab:para}
 \begin{center}
 \setlength{\tabcolsep}{3pt}
@@ -69,9 +75,10 @@ E augmented & 79.4 [79.0--80.2] & 70.0 [69.8--70.4] \\
 \toprule
 Setting & BANKING77 & CLINC150 \\
 \midrule
-Held out (transfer) & 44 [38--47] & 55.6 \\
+Held out (transfer) & 43.4 [38--47] & 55.6 \\
 In-distribution mean & 81.3 & 72.9 \\
-Chance & 2 & 17 \\
+Untrained head & 2.4 & 17.2 \\
+Uniform chance & 1.3 & 0.67 \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -82,7 +89,7 @@ Chance & 2 & 17 \\
 Row-matched canonical (A) vs full-augmentation (E) training gives:
 
 \begin{table}[htbp]
-\caption{Ablation A vs E (28\,000 rows each; decisions 31\,754 vs 39\,560).}
+\caption{Ablation A vs E (rows subsampled to 28\,000 each; decisions 31\,754 vs 39\,560).}
 \label{tab:ablation}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -102,7 +109,7 @@ E augmented & 59\% [56--61] & 79\% [75--82] & 70\% [65--73] \\
 An earlier 36\%\,$\to$\,83\% jump attributed to augmentation was a context
 truncation confound: training at 2\,048 tokens cut wide schemas, and
 augmentation's option subsampling merely made them fit. With fitting context,
-canonical training wins in-distribution; augmentation buys transfer plus memory
+canonical training wins in-distribution; augmentation coincides with transfer plus memory
 savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
 tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
@@ -112,7 +119,8 @@ then spikes at epoch 3 in every fully-logged run, so best-checkpoint selection
 always restores epoch 2 (Table~\ref{tab:overfit}).
 
 \begin{table}[htbp]
-\caption{Eval-loss at epochs 2 and 3 (best checkpoint underlined).}
+\caption{Eval-loss at epochs 2 and 3 (best checkpoint underlined; seed3407 train
+console was not pulled locally, so its row is absent).}
 \label{tab:overfit}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -139,7 +147,11 @@ held-out (Brier 0.281\,$\to$\,0.876); autonomous coverage at 5\% risk collapses
 from 63\% to 0.6\%. Temperature scaling fit in-distribution does not transfer.
 Yet error-detection AUROC falls only from 0.87 to 0.73: confidence still
 separates right from wrong answers, confirming that accuracy, calibration, and
-sensitivity are distinct quantities~\cite{systemswitch2026}. Measured T4 latency
+sensitivity are distinct quantities~\cite{systemswitch2026}. Within a single
+model (LOTO-banking), ECE rises from 0.176 on in-distribution CLINC150 to 0.366
+on the held-out taxonomy---the apples-to-apples shift pair; temperature
+scaling fit in-distribution is not refit here, so transfer of the scaler
+itself remains unmeasured. Measured T4 latency
 is 56--249\,ms/item depending on schema width.
 
 \begin{table}[htbp]
@@ -168,11 +180,10 @@ E & clinc & 70 & 0.090 & 0.85 & 40 \\
 Table~\ref{tab:external} places our accuracy beside vendor-reported numbers.
 Metric and protocol boundaries differ per row (Decision Index reports macro-F1
 over full tests; Unsloth reports accuracy under its own mixture; ours is
-accuracy on identical 500/500/400 tests), so no cross-row ranking is claimed.
-Two observations survive the boundary: (i)~a deployed 421M system (Laya) sits
-near chance on intent taxonomies while our 350M reaches 81--86\%, i.e.\ recipe
-dominates size in this class; (ii)~9--27B systems lead absolutely (90--97\%),
-as expected, with Cloudflare's own rows flagged self-reported by the board.
+accuracy on identical 500/500/400 tests), so no cross-row ranking is claimed
+and none is drawn: the rows are reported side by side for context only. Larger
+systems lead absolutely, as expected given scale; all starred rows are
+vendor-reported under their own protocols and were not rerun.
 
 \begin{table}[htbp]
 \caption{Context table. Ours: accuracy on identical tests. Starred rows:
@@ -186,7 +197,6 @@ vendor-reported under own protocols and metrics (acc vs macro-F1).}
 Model & Params & BANK77 & CLINC150 & typed \\
 \midrule
 Ours mean (acc) & 350M & 81.3 & 72.9 & 54.9 \\
-Ours canonical A (acc) & 350M & 86 & 84 & 54 \\
 Qwen3.5-0.8B* (acc) & 0.8B & 74 & 76 & 73 \\
 Clef* (F1) & 27B & 94.2 & 97.4 & --- \\
 Clef-flash* (F1) & 9B & 90.9 & 66.8 & --- \\
@@ -208,9 +218,36 @@ is architectural capacity, not recipe, and it bounds deployment scope to
 single-question routing rather than joint multi-field reasoning.
 
 \subsection{Discussion}
-Fixed 350M capacity forces mixture trade-offs: doubling the typed-decisions
-share shifted BANKING77 +2 but CLINC150 $-$7 without lifting either, i.e.\
-weights relocate capacity rather than create it. For practitioners: fit schemas
+Fixed 350M capacity forces mixture trade-offs, and the precursor runs that
+first surfaced them are logged with kernel IDs in Table~\ref{tab:precursors}:
+v5$\to$v6 shows the 36\%\,$\to$\,83\% augmentation jump was a
+context-truncation confound (v5 ran 2\,048-token context cutting wide schemas;
+v6's augmentation subsampling made them fit), while v2$\to$v3 shows doubling
+the typed-decisions weight relocates capacity (BANKING77 +2, CLINC150 $-$7)
+rather than creating it.
+
+\begin{table}[htbp]
+\caption{Logged precursor runs (kernels \texttt{amalanfadilgaib/lfm-decs1-v*}).
+Accuracy \% on identical tests.}
+\label{tab:precursors}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{llccc}
+\toprule
+Run & Recipe & typed & BANK77 & CLINC150 \\
+\midrule
+v5 & canonical, ctx 2048 & 52 & 36 & 33 \\
+v6 & v5 + augmentation & 57 & 83 & 73 \\
+v2 & mixture equal & 57 & 68 & 68 \\
+v3 & v2, typed $2\times$ & 57 & 70 & 61 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+For practitioners: fit schemas
 in context first (truncation dwarfs recipe effects), buy augmentation for transfer and memory rather than in-domain
 points, and never trust in-distribution temperatures under shift. Deploy with
 an escalation policy
@@ -227,5 +264,10 @@ separated, so the transfer credit cannot be attributed to one mechanism; no
 same-protocol Qwen rerun exists (vendor numbers are labeled context only);
 OOS/OOD slices and macro-F1 leaderboard slices are future work; and the
 \texttt{lfm1.0} license text is still unread, which must precede any release
-claim. None of these touch the three headline findings, each of which rests on
-fixed test sets with disclosed residuals.
+claim. How these bound the headline findings: the transfer finding rests on
+augmentation-full LOTO runs only, with no canonical-transfer cell, so the
+transfer credit cannot be attributed to augmentation specifically; the
+in-distribution canonical win is single-seed with a batch-size confound, so it
+is consistent with seed noise; the calibration finding holds within matched
+models, but transfer of the temperature scaler itself is unmeasured. Each rests
+on fixed test sets with disclosed residuals.

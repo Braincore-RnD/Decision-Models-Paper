@@ -21,7 +21,7 @@ is rendered deterministically: state text followed by per-question blocks
 (ID, type, instruction, named options with descriptions). When length exceeds
 budget, truncation cuts strictly the tail of $S$---schema text is never cut,
 and rows whose schema alone overflows are skipped with a logged reason. This
-invariant is load-bearing for Section~\ref{sec:results}.
+invariant matters for interpreting the Section~\ref{sec:results} ablations.
 
 \subsection{JointSchemaHead}
 For final hidden states $\mathbf{H}\in\mathbb{R}^{B\times L\times D}$,
@@ -50,7 +50,7 @@ initialization. The backbone stays frozen; only adapters and the decision head
 train. The trainer splits the optimizer automatically: backbone adapters at the
 configured LR ($2\times10^{-4}$) and head parameters at $1\times10^{-4}$.
 
-\subsection{Training Pipeline (Verified Against Unsloth 2026.10.3)}
+\subsection{Training Pipeline (Unsloth Decision API)~\cite{unsloth-decision}}
 \textit{Mixture.} Rows are sampled by weight (intent taxonomies $3\times$)
 with 2$\times$ headroom so decontamination never forces resampling; sources
 flagged eval-only are rejected from training by the library.
@@ -66,10 +66,15 @@ unrenderable rows are skipped with counted reasons (e.g.\ non-binary noul
 criteria, over-context schemas), and over-length inputs truncate state tails
 only. \textit{Split.} Holdout takes whole rows (never splitting a row's
 questions across train/holdout) at 10\% capped at 400 decisions; we halve it
-into calibration and test with a seeded shuffle.
+into calibration and test with a seeded shuffle. Best-checkpoint selection
+computes eval-loss on the calibration split, so selection and temperature
+fitting share data (logged runs)---future runs separate a dedicated validation
+split.
 \textit{Optimize.} Per-epoch evaluation and checkpointing keep best eval-loss
 (epoch-3 overfitting was consistent, so epoch 2 always wins) with patience-2
-early stopping. \textit{Calibrate.} Dual temperatures are fit by L-BFGS with
+early stopping; note the cosine schedule targets 3 epochs, so the restored
+epoch-2 checkpoint stops before full LR decay. \textit{Calibrate.} One
+temperature per question type (choice/score/noul) is fit by L-BFGS with
 two-fold cross-fitting: reported numbers score each half of the rows with
 temperatures fit on the other half, so calibration error is never measured
 with in-sample temperatures. \textit{Evaluate/predict} use the served
@@ -84,5 +89,14 @@ for proper-scoring analysis.
 with label smoothing~\cite{muller2019label}
 ($\tilde{y}=(1-\epsilon)y+\epsilon/K$, $\epsilon=0.05$), a Brier penalty
 against one-hot targets punishing overconfident errors, and an ordinal partial
-credit for \texttt{score} types. (The trainer's reference-KL term defaults to
-zero and is unused here.)
+credit for \texttt{score} types that rewards probability mass on adjacent
+levels. Our recipe overrides none of the \texttt{DecisionTrainer} loss
+weights, so $\lambda_{\text{Brier}}$ and $\lambda_{\text{ord}}$ are the
+library defaults~\cite{unsloth-decision}; the trainer's reference-KL term
+defaults to zero and is unused here. Trainable parameters are the rank-16
+adapters on the projection modules listed above plus the JointSchemaHead
+($W=256$, 2 cross-attention + 4 decoder layers); the exact total is a
+library-internal sum, so we report the configuration. The lexical prior is the
+library's fixed lexical-matching score per option, combined with the learned
+MLP through the gate $\sigma(g)$---it is this prior that already scores above
+uniform chance before training (Section~\ref{sec:results}).

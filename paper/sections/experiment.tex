@@ -3,11 +3,11 @@
 Seven training runs (3 seeds of the base recipe, 2 LOTO, 2 ablations) on NVIDIA
 T4 via Kaggle kernels: AdamW, backbone LR $2\times10^{-4}$, head LR
 $1\times10^{-4}$, cosine decay, effective batch 32, 3 epochs keeping best
-eval-loss (epoch-3 overfitting was consistent, so the best checkpoint is always
-epoch 2). Evaluation uses identical test sets everywhere
+eval-loss (per-run epoch losses in Table~\ref{tab:overfit}). Evaluation uses identical test sets everywhere
 (BANKING77/CLINC150 500 items, typed-decisions 400): canonical accuracy plus a
-3-variant paraphrase grid (wording and option-order perturbations), bootstrap
-95\% intervals (100 resamples on GPU runs), measured per-item latency on T4,
+paraphrase grid (canonical plus 2 wording/order variants), bootstrap
+95\% intervals (30 resamples on evals \#9--\#11; lean evals report point
+estimates), measured per-item latency on T4,
 and per-item probability dumps (1\,400 rows each) scored
 with Brier, NLL, 10-bin ECE, error-detection AUROC, and coverage at 5\% risk.
 
@@ -16,10 +16,10 @@ with Brier, NLL, 10-bin ECE, error-detection AUROC, and coverage at 5\% risk.
 \label{alg:eval}
 \begin{algorithmic}
 \STATE Build canonical benches once per tokenizer (typed 400, intent 500 each)
-\STATE \textbf{Before:} backbone + random head (chance reference)
+\STATE \textbf{Before:} backbone + random head (untrained-head reference)
 \STATE \textbf{After:} trained checkpoint; time per-item latency
-\STATE \textbf{Robustness:} 2 wording/order variants per bench, report median+range
-\STATE \textbf{Uncertainty:} bootstrap 95\% CI over items (GPU runs)
+\STATE \textbf{Robustness:} canonical + 2 wording/order variants per bench, report median+range
+\STATE \textbf{Uncertainty:} bootstrap 95\% CI over items (30 resamples; point estimates on lean evals)
 \STATE \textbf{Calibration:} cross-fitted ECE on cal split; \texttt{predict} dump
 \STATE \hspace{\algorithmicindent}per-item probabilities $\to$ Brier/NLL/AUROC/coverage offline
 \end{algorithmic}
@@ -28,8 +28,9 @@ Vendor numbers (Unsloth Qwen, Cloudflare Clef) are cited as labeled context,
 never as rerun baselines; the size-matched reference is d1-omni-600M from the
 same LFM lineage~\cite{liquid-d1}. Every run archives adapters, head, merged
 weights, and \texttt{run\_meta.json} in its kernel output; lightweight results
-(\texttt{eval\_results.json}, probability dumps, metric tables) are versioned,
-so each number below traces to a logged artifact.
+(\texttt{eval\_results.json}, probability dumps, metric tables) are versioned
+in \texttt{docs/eval/} of the public repo
+(\url{https://github.com/Braincore-RnD/Decision-Models-Paper}).
 
 \begin{table}[htbp]
 \caption{Hyperparameters (all seven training runs).}
