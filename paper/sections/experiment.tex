@@ -43,10 +43,10 @@ Setting & Value \\
 \midrule
 Backbone & LFM2.5-350M, 4-bit, frozen \\
 LoRA rank / alpha / dropout & 16 / 16 / 0 \\
-Backbone LR / head LR & $2\times10^{-4}$ / $1\times10^{-4}$ (auto) \\
-Schedule / warmup & cosine / 5\% (fallback steps on old stack) \\
-Effective batch & 32 (8$\times$4; 4$\times$8 for full schemas) \\
-Epochs / selection & 3, best eval-loss, patience-2 early stop \\
+Backbone / head LR & $2\times10^{-4}$ / $1\times10^{-4}$ \\
+Schedule / warmup & cosine / 5\% \\
+Effective batch & 32 (8$\times$4; 4$\times$8 full schemas) \\
+Epochs / selection & 3, best eval-loss, patience 2 \\
 Context & 4\,096 tokens \\
 Seeds & 3407 / 41 / 42 \\
 \bottomrule
