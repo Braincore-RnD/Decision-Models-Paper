@@ -1,7 +1,8 @@
 \section{Dataset and Preprocessing}
 \subsection{Mixture Composition}
-Training uses a 13-source mixture (20\,400 sampled rows) plus 9\,600
-consensus-soft rows: Open-Jev release-v2 (3\,600) and mailroom-control-v1
+Training uses a 13-source standard mixture (12 public sources plus
+typed-decisions; 20\,400 sampled rows, intent taxonomies sampled at
+$3\times$ weight) plus 9\,600 consensus-soft rows: Open-Jev release-v2 (3\,600) and mailroom-control-v1
 (2\,400), LeWiDi conv\_abuse and csc sarcasm (1\,200 each, annotator-share soft
 labels), and GoEmotions (1\,200 emotion-fraction rows). Intent taxonomies
 (BANKING77, CLINC150) are upweighted $3\times$; twelve public intent and
@@ -13,7 +14,8 @@ GoEmotions multi-rater rows become per-emotion fractions. All rows are rendered
 into canonical decision records.
 
 \begin{table}[htbp]
-\caption{Training mixture (20\,400 sampled + 9\,600 consensus-soft rows).}
+\caption{Training mixture: 20\,400 standard + 9\,600 consensus-soft = 30\,000 rows.
+Intent taxonomies are sampled at $3\times$ weight within the standard share.}
 \label{tab:mixture}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -22,11 +24,12 @@ into canonical decision records.
 \toprule
 Group & Rows & Labels \\
 \midrule
-12 public sources & 20\,400 & hard \\
-Intent share & $3\times$ weight & hard \\
-Open-Jev (2 subsets) & 3\,600 + 2\,400 & soft \\
-LeWiDi (2 configs) & 1\,200 + 1\,200 & annotator shares \\
+13 standard sources & 20\,400 & hard \\
+Open-Jev (2 releases) & 3\,600 + 2\,400 & soft \\
+LeWiDi (conv\_abuse + csc) & 1\,200 + 1\,200 & annotator shares \\
 GoEmotions fractions & 1\,200 & soft \\
+\midrule
+Total & 30\,000 & \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -46,6 +49,6 @@ matching before training. Items are split train/calibration/test with fixed
 seeds; temperature scaling is fit on calibration only, verdicts on held-out
 tests. For leave-one-taxonomy-out (LOTO) runs, every row, label definition, and
 augmentation variant of the held-out taxonomy is removed from training. Render skips are counted, not silent:
-typical runs skip $\sim$800 of $\sim$43\,000 decisions, dominated by
-over-context schemas and non-binary noul criteria, and the counts are logged
-per run for audit.
+rows whose schema alone overflows and non-binary noul criteria are skipped
+with logged reasons, and the per-run counts live in \texttt{run\_meta.json}
+(the seed3407 run built 43\,171 decisions).

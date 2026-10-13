@@ -21,13 +21,14 @@ sequence mixers and grouped-query attention, fitted with a cross-attention
 JointSchemaHead via QLoRA. Our contributions, each backed by controlled runs
 with fixed test sets, are:
 \begin{enumerate}
-\item \textbf{Measured transfer:} leave-one-taxonomy-out evaluation gives 44\%
-  on BANKING77 and 55.6\% on CLINC150 (chance: 2\%/17\%) versus
+\item \textbf{Measured transfer:} leave-one-taxonomy-out evaluation gives 43.4\%
+  on BANKING77 and 55.6\% on CLINC150 (untrained-head baselines 2.4\%/17.2\%;
+  uniform chance 1.3\%/0.67\%) versus
   in-distribution means of 81.3\%/72.9\% over three seeds.
 \item \textbf{A confound found and fixed:} an earlier 36\%\,$\to$\,83\%
   augmentation jump was context truncation ($2048$ tokens cutting wide
   schemas), not semantic robustness. Row-matched canonical training wins
-  in-distribution (86\%/84\% vs 79\%/70\%); augmentation buys transfer plus
+  in-distribution (86\%/84\% vs 79\%/70\%); augmentation coincides with transfer plus
   memory savings at a small in-domain tax.
 \item \textbf{Calibration under shift:} ECE rises from 0.026 in-distribution to
   0.366 on the held-out taxonomy while error-detection AUROC only falls from

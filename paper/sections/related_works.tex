@@ -7,7 +7,7 @@ cross-entropy, Brier penalty, and an RLCD secondary objective; weights are open
 under Apache-2.0~\cite{cloudflare-clef}. Convai's Laya shows sub-500M
 bidirectional encoders reaching single-digit millisecond latency~\cite{convai-laya}.
 LiquidAI's open d1 family (d1-omni-600M, same LFM lineage as our backbone)
-provides the closest size-class reference~\cite{liquid-d1}. We tributeevaluate
+provides the closest size-class reference~\cite{liquid-d1}. We evaluate
 against vendor-reported numbers only, clearly labeled, since rerunning 9--27B
 models is outside a T4 protocol.
 
@@ -37,8 +37,7 @@ protocol. System Switch shows accuracy, ECE, and error-detection AUROC are
 distinct quantities, with deferral gain tracking AUROC
 ($\rho=0.87$)~\cite{systemswitch2026}---exactly the dissociation we observe
 under shift. Small-model precedents include distillation from System-One
-labels~\cite{distilljev2026} and matched-token-budget 360M
-finetunes~\cite{bottled2026}. Head-to-head benchmarking finds small decision
+labels~\cite{distilljev2026}. Head-to-head benchmarking finds small decision
 models beating small generative ones on knowledge tasks while losing on
 math~\cite{jevbench2026}, which bounds where our 350M claims apply: intent
 and routing taxonomies, not reasoning benchmarks. Companion efforts cover
