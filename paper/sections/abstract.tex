@@ -9,7 +9,8 @@ controlled training runs and six evaluation kernels we find: (1) leave-one-
 taxonomy-out transfer is substantial but partial---43.4\% on BANKING77 and
 55.6\% on CLINC150 against untrained-head baselines of 2.4\%/17.2\% (uniform
 chance 1.3\%/0.67\%), versus 81.3\%/72.9\% in-distribution
-means over three seeds; (2) an earlier 36\%\,$\to$\,83\% augmentation jump was a
+means over three seeds---but at or below a zero-shot embedding baseline
+(68.0\%/56.9\% full-test with no training); (2) an earlier 36\%\,$\to$\,83\% augmentation jump was a
 context-truncation confound, not semantic robustness: with row-matched budgets,
 canonical training wins in-distribution (86\%/84\% vs 80\%/70\%) while
 augmentation coincides with transfer and memory savings; (3) calibration does not

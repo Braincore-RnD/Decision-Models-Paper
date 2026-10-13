@@ -230,3 +230,14 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   (FINAL env, lalu unsloth tak terinstal — keduanya di-fix di skrip).
   Kernel `ablasi-none-full` + semua kernel eval 403 permanen (tak bisa
   diunduh); A tetap tanpa bobot → subset + disclosure.
+
+## Eksekusi Fase 2 lanjutan (masih PR #30) — embedding baseline (CPU lokal)
+
+- #4 CLOSED (teks + data): `code/train_decision_models/embed_baseline.py`
+  (bge-small-en-v1.5, CPU, `uv run --with sentence-transformers`) →
+  `docs/eval/embed_baseline.json`: BANKING77 **68.0%** full / 67.0 sub,
+  CLINC150 **56.9%** full / 59.4 sub — tanpa training, nama label saja.
+  Hasilnya di BAWAH transfer kita di banking (43.4) dan setara di clinc
+  (55.6): framing "substantial" direvisi jujur di abstrak/intro/§6 +
+  Tab. loto + §5 metode. Subset sampler beda (seed sama) → disclosed.
+- Para-grid seeds tertunda (tunggu bobot seed41/42).
