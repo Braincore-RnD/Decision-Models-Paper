@@ -151,7 +151,10 @@ partially: on the shifted bench ECE falls to 0.220, far from the 0.104 oracle
 refit (Table~\ref{tab:ts}; Figure~\ref{fig:rel}).
 Yet error-detection AUROC falls only from 0.87 to 0.73: confidence still
 separates right from wrong answers, confirming that accuracy, calibration, and
-sensitivity are distinct quantities~\cite{systemswitch2026}. Within a single
+sensitivity are distinct quantities~\cite{systemswitch2026}. Normalized for
+accuracy, selective quality degrades too: AURC rises from 0.053
+in-distribution to 0.389 under shift on BANKING77 (CLINC150: 0.106 vs 0.144).
+Within a single
 model (LOTO-banking), ECE rises from 0.176 on in-distribution CLINC150 to 0.366
 on the held-out taxonomy---the apples-to-apples shift pair; temperature
 scaling fit in-distribution is not refit here, so transfer of the scaler
