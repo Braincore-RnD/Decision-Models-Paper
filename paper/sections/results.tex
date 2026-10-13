@@ -161,12 +161,75 @@ separates right from wrong answers, confirming that accuracy, calibration, and
 sensitivity are distinct quantities~\cite{systemswitch2026}. Normalized for
 accuracy, selective quality degrades too: AURC rises from 0.053
 in-distribution to 0.389 under shift on BANKING77 (CLINC150: 0.106 vs 0.144).
-Within a single
-model (LOTO-banking), ECE rises from 0.176 on in-distribution CLINC150 to 0.366
-on the held-out taxonomy---the apples-to-apples shift pair; temperature
-scaling fit in-distribution is not refit here, so transfer of the scaler
-itself remains unmeasured. Measured T4 latency
-is 56--249\,ms/item depending on schema width.
+Within a single model (LOTO-banking), ECE rises from 0.176 on in-distribution
+CLINC150 to 0.366 on the held-out taxonomy---the apples-to-apples shift pair.
+
+\subsection{Full Tests, OOS, and Latency}
+On the official full tests, recipe E gives typed 58.8\% [53.9--63.5] (400),
+BANKING77 \textbf{80.6\%} [79.1--81.9] (3\,080), and CLINC150 \textbf{69.4\%}
+[68.2--70.6] (5\,500), with in-scope CLINC150 at 79.6\% [78.4--80.8]
+(Table~\ref{tab:full}; Wilson 95\% intervals). The full-test numbers track the
+500-subset means (79.6/69.8), so subset rankings transfer. But 1\,000 OOS
+utterances are routed to the \texttt{oos} label only \textbf{23.5\%}
+[21.0--26.2] of the time---in-scope accuracy overstates deployment autonomy
+where OOS must escalate.
+
+\begin{table}[htbp]
+\caption{Recipe E on official full tests (Wilson 95\% CI).}
+\label{tab:full}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Bench & n & Accuracy \\
+\midrule
+typed-decisions & 400 & 58.8 [53.9--63.5] \\
+BANKING77 & 3\,080 & 80.6 [79.1--81.9] \\
+CLINC150 & 5\,500 & 69.4 [68.2--70.6] \\
+CLINC150 in-scope & 4\,500 & 79.6 [78.4--80.8] \\
+CLINC150 OOS recall & 1\,000 & 23.5 [21.0--26.2] \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+Per-row T4 latency (4-bit, E) grows with schema width: typed 139--148\,ms/row,
+BANKING77 245--288\,ms (1.2\,GB peak), CLINC150 515--518\,ms (2.3\,GB peak);
+truncating BANKING77 to 8/24 options cuts latency to 134/116\,ms but destroys
+accuracy (9.6\%/28.8\%) since gold labels are cut---fit schemas in context
+first (Table~\ref{tab:lat}). Batched evaluation is $\sim$2$\times$ faster
+(127/221\,ms) but per-row is the deployment number. The earlier 56--249\,ms
+range is superseded by these measurements.
+
+\begin{table}[htbp]
+\caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
+gold label, hence the accuracy collapse.}
+\label{tab:lat}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lccc}
+\toprule
+Setting & ms/row & Peak mem & Acc \\
+\midrule
+typed (5q/row) & 139--148 & 0.6\,GB & 58.8 \\
+BANKING77 (77) & 245--288 & 1.2\,GB & 79.6--80.6 \\
+CLINC150 (150) & 515--518 & 2.3\,GB & 69.4--69.8 \\
+BANK top-8 & 134 & 0.5\,GB & 9.6 \\
+BANK top-24 & 116 & 0.5\,GB & 28.8 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+The semantic test is decisive: permuting label names while keeping
+descriptions collapses BANKING77 79.6\,$\to$\,5.6\% and CLINC150
+69.8\,$\to$\,3.0\%---near uniform chance. The transfer-relevant signal lives
+in label-name semantics, not phrasing, which is the correct reading of the
+wording-robustness grid above.
 
 \begin{table}[htbp]
 \caption{Calibration per bench: LOTO (shift) vs E (in-distribution).
@@ -313,7 +376,8 @@ with a batch-size confound (4$\times$8 vs 8$\times$4 at equal effective size 32,
 forced by full-schema OOM); rename/paraphrase/derived types are not yet
 separated, so the transfer credit cannot be attributed to one mechanism; no
 same-protocol Qwen rerun exists (vendor numbers are labeled context only);
-OOS/OOD slices and macro-F1 leaderboard slices are future work; and the
+OOS recall is measured (23.5\%) but no abstain policy is evaluated, and
+macro-F1 leaderboard slices are future work; and the
 \texttt{lfm1.0} license text is still unread, which must precede any release
 claim. How these bound the headline findings: the transfer finding rests on
 augmentation-full LOTO runs only, with no canonical-transfer cell, so the

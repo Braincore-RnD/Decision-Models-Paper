@@ -203,3 +203,30 @@ token env lama 401 di kedua format. Jejak: tidak ada secret di repo.
 - Colab T4 sempat ke-block orphan assignment (~30 mnt) lalu Sessions READY;
   sesi di-stop setelah dump (no burn). `uv run --with matplotlib` untuk
   figure (tanpa install).
+
+## Eksekusi Fase 2 (masih PR #30) — full-test E di Kaggle, probe di Colab
+
+Kuota Kaggle: GPU sisa 2.39/30h (refresh 17 Okt) → 1 job国内 hati-hati.
+TPU 20h tak terpakai (Unsloth butuh CUDA).
+
+- #13 PARTIAL: kernel `amalanfadilgaib/lfm-decs1-v7-eval-e-full`
+  (`eval_agg.py`, batched BS=4, N_BOOT=0) → `docs/eval/kaggle/eval-E-full/agg.json`:
+  E full-test typed **58.8** [53.9–63.5] / BANK **80.6** [79.1–81.9] (3.080) /
+  CLINC **69.4** [68.2–70.6] (5.500), in-scope 79.6, **OOS-recall 23.5%**
+  [21.0–26.2] (1.000, Wilson CI). Full ≈ subset (79.6/69.8) → ranking subset
+  transfer. Seeds + LOTO full-test tak muat kuota → subset + disclosure.
+- #23 PARTIAL (semantik, E, Colab `eval_probe.py`): label-shuffle
+  (nama diacak, deskripsi tetap) BANK 79.6→**5.6%**, CLINC 69.8→**3.0%** —
+  sinyal ada di semantik nama label. Para-grid ulang seeds tertunda
+  (bobot seed41/42 tak terunduh saat auth hidup).
+- #21 PARTIAL (latency per-row T4 4-bit, E): typed 139–148ms/row,
+  BANK77 245–288ms (1.2GB), CLINC150 515–518ms (2.3GB); top8/24 134/116ms
+  tapi akurasi hancur (9.6/28.8%) karena gold terpotong. Klaim lama 56–249ms
+  direvisi di naskah. Batched ~2× lebih cepat (127/221ms) — deployment =
+  angka per-row. Perbandingan vs generatif/encoder → Fase 3 (butuh modelnya).
+- Infra: VM CLI mati ~6× di umur 30–40 mnt → pola kerja = job <20 mnt +
+  `RESUME=1`/save-per-chunk + download langsung (`eval_full.py`,
+  `eval_probe.py` MODE/KS/BENCH filter). Kernel Kaggle 2× ERROR sebelum jalan
+  (FINAL env, lalu unsloth tak terinstal — keduanya di-fix di skrip).
+  Kernel `ablasi-none-full` + semua kernel eval 403 permanen (tak bisa
+  diunduh); A tetap tanpa bobot → subset + disclosure.
