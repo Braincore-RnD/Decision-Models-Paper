@@ -73,13 +73,17 @@ computes eval-loss on the calibration split, so selection and temperature
 fitting share data (logged runs)---future runs separate a dedicated validation
 split.
 \textit{Optimize.} Per-epoch evaluation and checkpointing keep best eval-loss
-(epoch-3 overfitting was consistent, so epoch 2 always wins) with patience-2
+(epoch-3 overfitting was consistent across all seven runs; the restored best
+is epoch 1 or 2, never 3) with patience-2
 early stopping; note the cosine schedule targets 3 epochs, so the restored
-epoch-2 checkpoint stops before full LR decay. \textit{Calibrate.} One
+epoch-1/2 checkpoint stops before full LR decay. \textit{Calibrate.} One
 temperature per question type (choice/score/noul) is fit by L-BFGS with
 two-fold cross-fitting: reported numbers score each half of the rows with
 temperatures fit on the other half, so calibration error is never measured
-with in-sample temperatures. \textit{Evaluate/predict} use the served
+with in-sample temperatures. How noisy small calibration sets are: on
+seed3407 (192 questions) raw ECE is 0.119 [0.084--0.191] (2\,000 bootstraps),
+0.081 cross-fitted, 0.067 fit in-sample---intervals this wide are why future
+runs need $\ge$1k calibration items. \textit{Evaluate/predict} use the served
 temperatures; \texttt{predict} additionally returns per-option probabilities
 for proper-scoring analysis.
 

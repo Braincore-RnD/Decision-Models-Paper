@@ -116,32 +116,39 @@ savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
 tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
 
-Overfitting dynamics are strikingly consistent: eval-loss falls through epoch 2
-then spikes at epoch 3 in every fully-logged run, so best-checkpoint selection
-always restores epoch 2 (Table~\ref{tab:overfit}).
+Overfitting dynamics are strikingly consistent: eval-loss spikes at epoch 3 in
+every fully-logged run, so the restored best checkpoint is epoch 1 or 2, never
+3 (Table~\ref{tab:overfit}; Figure~\ref{fig:loss}).
 
 \begin{table}[htbp]
-\caption{Eval-loss at epochs 2 and 3 (best checkpoint underlined; seed3407 train
-console was not pulled locally, so its row is absent).}
+\caption{Eval-loss at epochs 1--3 (best checkpoint underlined; all seven runs).}
 \label{tab:overfit}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
 \begin{small}
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-Run & Epoch 2 & Epoch 3 \\
+Run & Epoch 1 & Epoch 2 & Epoch 3 \\
 \midrule
-seed41 & \underline{0.72} & 0.90 \\
-seed42 & \underline{0.62} & 1.01 \\
-LOTO-banking & \underline{0.59} & 0.72 \\
-LOTO-clinc & \underline{0.64} & 0.87 \\
-Ablation A & \underline{0.76} & 0.95 \\
-Ablation E & \underline{0.57} & 0.65 \\
+seed3407 & \underline{0.65} & 0.70 & 0.84 \\
+seed41 & 0.72 & \underline{0.72} & 0.90 \\
+seed42 & 0.66 & \underline{0.62} & 1.01 \\
+LOTO-banking & 0.67 & \underline{0.59} & 0.72 \\
+LOTO-clinc & 0.71 & \underline{0.64} & 0.87 \\
+Ablation A & 0.79 & \underline{0.76} & 0.95 \\
+Ablation E & 0.67 & \underline{0.57} & 0.65 \\
 \bottomrule
 \end{tabular}
 \end{small}
 \end{center}
 \end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_losscurve.pdf}
+\caption{Eval-loss trajectories for all seven runs: spike at epoch 3 throughout.}
+\label{fig:loss}
+\end{figure}
 
 \subsection{Calibration Under Shift}
 On BANKING77, ECE rises from \textbf{0.026} in-distribution to \textbf{0.366}

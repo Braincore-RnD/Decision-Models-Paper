@@ -203,9 +203,33 @@ def main(inp, outp=None):
         print(f"saved {outp}")
 
 
+def ece_equal_mass(qs, nb=10):
+    s = sorted(qs, key=lambda q: q["conf"])
+    ece, n = 0.0, len(s)
+    for i in range(nb):
+        b = s[i * n // nb:(i + 1) * n // nb]
+        if b:
+            ece += len(b) / n * abs(sum(q["conf"] for q in b) / len(b) - sum(q["ok"] for q in b) / len(b))
+    return ece
+
+
+def from_cal_logits(path):
+    """cal_logits.json (logits+label per question) -> q dicts ala collect()."""
+    qs = []
+    for x in json.load(open(path)):
+        p = _scaled({str(i): v for i, v in enumerate(x["logits"])}, 1.0)
+        gl = str(x["label"])
+        pred = max(p, key=p.__getitem__)
+        qs.append({"ok": pred == gl, "conf": p[pred], "gold": gl, "probs": p,
+                   "qtype": x["qtype"],
+                   "brier": sum((v - (1.0 if k == gl else 0.0)) ** 2 for k, v in p.items()),
+                   "nll": -math.log(max(p.get(gl, 0.0), 1e-12))})
+    return qs
+
+
 if __name__ == "__main__":
     toks, boot, seed, ts_from = sys.argv[1:], 0, 0, None
-    args = []
+    args, cal = [], False
     i = 0
     while i < len(toks):
         a = toks[i]
@@ -215,10 +239,20 @@ if __name__ == "__main__":
             seed = int(toks[i + 1]); i += 2
         elif a == "--ts-from":
             ts_from = toks[i + 1]; i += 2
+        elif a == "--cal":
+            cal = True; i += 1
         else:
             args.append(a); i += 1
-    if not boot and ts_from is None:
+    if not boot and ts_from is None and not cal:
         main(args[0], args[1] if len(args) > 1 else None)
+    elif cal:
+        qs = from_cal_logits(args[0])
+        m = metrics_of(qs)
+        m["ece_equal_mass"] = ece_equal_mass(qs)
+        m["ci95"] = boot_ci(qs, boot or 2000, seed)
+        T = fit_by_type(qs)
+        m["ts_fit_on_cal"] = {"T": T, "ece_ts": metrics_of(apply_T(qs, T))["ece10"]}
+        print(json.dumps(m, indent=1))
     else:
         by, errs = collect(json.load(open(args[0])))
         fit_qs = by.get(ts_from, []) if ts_from else []

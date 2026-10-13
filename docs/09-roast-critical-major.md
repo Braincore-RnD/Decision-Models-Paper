@@ -179,3 +179,27 @@ figure <3 detik (`uv run --with matplotlib`, tanpa install).
   halaman. Loss-curve figure → butuh train console (Colab). Tab. loto → para
   belum digabung; Algorithm 1 dipertahankan.
 - #19 OPEN: butuh `cal_items.pt` (hanya di kernel output) → Colab.
+
+## Eksekusi Colab (masih PR #30, `feat/roast-fase1`)
+
+Kaggle CLI 2.x butuh OAuth (`kaggle auth login`, user menjalankannya);
+token env lama 401 di kedua format. Jejak: tidak ada secret di repo.
+
+- Kernel outputs diunduh lokal (`kaggle kernels output` ×7): kernel **stdout
+  log** (~300KB) ternyata memuat full train-loss + eval-loss per epoch, plus
+  `run_meta.json` + `cal/test_items.pt` per run. Yang di-commit (kecil,
+  traceable): `docs/eval/kaggle/*/loss_series.json` + `run_meta.json`;
+  `.pt`/log penuh tetap di `/tmp` (tak masuk repo).
+- #20 CLOSED total + koreksi jujur: klaim "epoch 2 always wins" **salah
+  untuk 1 dari 7 run** — seed3407 best = ep1 (0.6495 < 0.6965 < 0.8421).
+  Tab. overfit sekarang 7 baris × 3 epoch + Figure loss-curve;
+  teks: "best at epoch 1 or 2, never 3".
+- #19 PARTIAL (butuh 1 sesi T4, lalu stop): `final/` seed3407 (76MB) +
+  `cal_items.pt` di-upload; `_decision_logits` → `cal_logits.json`
+  (192 questions) → `cal_metrics.json`: raw ECE **0.119 [0.084–0.191]**,
+  equal-mass 0.122, cross-fitted 0.081 (logged), in-sample TS 0.067
+  (T 6–13, overconfident). CI ±5pt = bukti kuantitatif klaim #19;
+  kalimatnya masuk §4. Cal ≥1k tetap butuh perubahan protokol (future work).
+- Colab T4 sempat ke-block orphan assignment (~30 mnt) lalu Sessions READY;
+  sesi di-stop setelah dump (no burn). `uv run --with matplotlib` untuk
+  figure (tanpa install).
