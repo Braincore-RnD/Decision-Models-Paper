@@ -31,12 +31,18 @@ Mean & 54.9 & 81.3 & 72.9 \\
 \end{table}
 
 \subsection{Transfer: Leave-One-Taxonomy-Out}
-With BANKING77 fully held out, accuracy reaches \textbf{43.4\% [38--47\%]}
+With BANKING77 fully held out, accuracy reaches \textbf{43.4\% [39--48\%]}
 against a 2.4\% untrained-head baseline (uniform chance 1.3\%; paraphrase median
 42.8\%, range 42.2--43.6); with CLINC150
 held out, \textbf{55.6\%} (paraphrase 55.6--57.0) against a 17.2\% untrained-head
 baseline (uniform chance 0.67\%). Transfer
-is substantial but partial versus 81.3\%/72.9\% in-distribution.
+is partial versus 81.3\%/72.9\% in-distribution---and against the honest
+zero-shot floor it is weak: cosine similarity with bge-small over label names
+alone (no training, no descriptions) reaches 68.0\% on full BANKING77 and
+56.9\% on full CLINC150, i.e.\ at or above our transfer numbers (43.4/55.6).
+The model beats that baseline only in-distribution (80.6/69.4 full-test).
+Subset draws use the same seed value with different samplers, so subset
+comparisons are approximate; full-test ones are exact.
 
 Transfer is wording-robust, not prompt luck: a grid of canonical plus 2
 variants (instruction
@@ -75,10 +81,11 @@ E augmented & 79.4 [79.0--80.2] & 70.0 [69.8--70.4] \\
 \toprule
 Setting & BANKING77 & CLINC150 \\
 \midrule
-Held out (transfer) & 43.4 [38--47] & 55.6 \\
+Held out (transfer) & 43.4 [39--48] & 55.6 \\
 In-distribution mean & 81.3 & 72.9 \\
 Untrained head & 2.4 & 17.2 \\
 Uniform chance & 1.3 & 0.67 \\
+Zero-shot embedding (full) & 68.0 & 56.9 \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -89,7 +96,9 @@ Uniform chance & 1.3 & 0.67 \\
 Row-matched canonical (A) vs full-augmentation (E) training gives:
 
 \begin{table}[htbp]
-\caption{Ablation A vs E (rows subsampled to 28\,000 each; decisions 31\,754 vs 39\,560).}
+\caption{Ablation A vs E (rows subsampled to 28\,000 each; decisions 31\,754 vs 39\,560).
+E intervals from 2\,000 bootstrap resamples; A reports point estimates
+(dumps not archived locally).}
 \label{tab:ablation}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -98,8 +107,8 @@ Row-matched canonical (A) vs full-augmentation (E) training gives:
 \toprule
 Treatment & typed & BANKING77 & CLINC150 \\
 \midrule
-A canonical & 54\% [51--56] & \textbf{86\%} [81--88] & \textbf{84\%} [81--88] \\
-E augmented & 59\% [56--61] & 79\% [75--82] & 70\% [65--73] \\
+A canonical & 54\% & \textbf{86\%} & \textbf{84\%} \\
+E augmented & 59\% [57--61] & 80\% [76--83] & 70\% [66--74] \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -114,48 +123,125 @@ savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
 tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
 
-Overfitting dynamics are strikingly consistent: eval-loss falls through epoch 2
-then spikes at epoch 3 in every fully-logged run, so best-checkpoint selection
-always restores epoch 2 (Table~\ref{tab:overfit}).
+Overfitting dynamics are strikingly consistent: eval-loss spikes at epoch 3 in
+every fully-logged run, so the restored best checkpoint is epoch 1 or 2, never
+3 (Table~\ref{tab:overfit}; Figure~\ref{fig:loss}).
 
 \begin{table}[htbp]
-\caption{Eval-loss at epochs 2 and 3 (best checkpoint underlined; seed3407 train
-console was not pulled locally, so its row is absent).}
+\caption{Eval-loss at epochs 1--3 (best checkpoint underlined; all seven runs).}
 \label{tab:overfit}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
 \begin{small}
-\begin{tabular}{lcc}
+\begin{tabular}{lccc}
 \toprule
-Run & Epoch 2 & Epoch 3 \\
+Run & Epoch 1 & Epoch 2 & Epoch 3 \\
 \midrule
-seed41 & \underline{0.72} & 0.90 \\
-seed42 & \underline{0.62} & 1.01 \\
-LOTO-banking & \underline{0.59} & 0.72 \\
-LOTO-clinc & \underline{0.64} & 0.87 \\
-Ablation A & \underline{0.76} & 0.95 \\
-Ablation E & \underline{0.57} & 0.65 \\
+seed3407 & \underline{0.65} & 0.70 & 0.84 \\
+seed41 & 0.72 & \underline{0.72} & 0.90 \\
+seed42 & 0.66 & \underline{0.62} & 1.01 \\
+LOTO-banking & 0.67 & \underline{0.59} & 0.72 \\
+LOTO-clinc & 0.71 & \underline{0.64} & 0.87 \\
+Ablation A & 0.79 & \underline{0.76} & 0.95 \\
+Ablation E & 0.67 & \underline{0.57} & 0.65 \\
 \bottomrule
 \end{tabular}
 \end{small}
 \end{center}
 \end{table}
 
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_losscurve.pdf}
+\caption{Eval-loss trajectories for all seven runs: spike at epoch 3 throughout.}
+\label{fig:loss}
+\end{figure}
+
 \subsection{Calibration Under Shift}
 On BANKING77, ECE rises from \textbf{0.026} in-distribution to \textbf{0.366}
 held-out (Brier 0.281\,$\to$\,0.876); autonomous coverage at 5\% risk collapses
-from 63\% to 0.6\%. Temperature scaling fit in-distribution does not transfer.
+from 63\% to 0.6\%. Temperature scaling fit in-distribution transfers only
+partially: on the shifted bench ECE falls to 0.220, far from the 0.104 oracle
+refit (Table~\ref{tab:ts}; Figure~\ref{fig:rel}).
 Yet error-detection AUROC falls only from 0.87 to 0.73: confidence still
 separates right from wrong answers, confirming that accuracy, calibration, and
-sensitivity are distinct quantities~\cite{systemswitch2026}. Within a single
-model (LOTO-banking), ECE rises from 0.176 on in-distribution CLINC150 to 0.366
-on the held-out taxonomy---the apples-to-apples shift pair; temperature
-scaling fit in-distribution is not refit here, so transfer of the scaler
-itself remains unmeasured. Measured T4 latency
-is 56--249\,ms/item depending on schema width.
+sensitivity are distinct quantities~\cite{systemswitch2026}. Normalized for
+accuracy, selective quality degrades too: AURC rises from 0.053
+in-distribution to 0.389 under shift on BANKING77 (CLINC150: 0.106 vs 0.144).
+Within a single model (LOTO-banking), ECE rises from 0.176 on in-distribution
+CLINC150 to 0.366 on the held-out taxonomy---the apples-to-apples shift pair.
+
+\subsection{Full Tests, OOS, and Latency}
+On the official full tests, recipe E gives typed 58.8\% [53.9--63.5] (400),
+BANKING77 \textbf{80.6\%} [79.1--81.9] (3\,080), and CLINC150 \textbf{69.4\%}
+[68.2--70.6] (5\,500), with in-scope CLINC150 at 79.6\% [78.4--80.8]
+(Table~\ref{tab:full}; Wilson 95\% intervals). The full-test numbers track the
+500-subset means (79.6/69.8), so subset rankings transfer. But 1\,000 OOS
+utterances are routed to the \texttt{oos} label only \textbf{23.5\%}
+[21.0--26.2] of the time---in-scope accuracy overstates deployment autonomy
+where OOS must escalate.
 
 \begin{table}[htbp]
-\caption{Calibration per bench: LOTO (shift) vs E (in-distribution).}
+\caption{Recipe E on official full tests (Wilson 95\% CI).}
+\label{tab:full}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lcc}
+\toprule
+Bench & n & Accuracy \\
+\midrule
+typed-decisions & 400 & 58.8 [53.9--63.5] \\
+BANKING77 & 3\,080 & 80.6 [79.1--81.9] \\
+CLINC150 & 5\,500 & 69.4 [68.2--70.6] \\
+CLINC150 in-scope & 4\,500 & 79.6 [78.4--80.8] \\
+CLINC150 OOS recall & 1\,000 & 23.5 [21.0--26.2] \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+Per-row T4 latency (4-bit, E) grows with schema width: typed 139--148\,ms/row,
+BANKING77 245--288\,ms (1.2\,GB peak), CLINC150 515--518\,ms (2.3\,GB peak);
+truncating BANKING77 to 8/24 options cuts latency to 134/116\,ms but destroys
+accuracy (9.6\%/28.8\%) since gold labels are cut---fit schemas in context
+first (Table~\ref{tab:lat}). Batched evaluation is $\sim$2$\times$ faster
+(127/221\,ms) but per-row is the deployment number. The earlier 56--249\,ms
+range is superseded by these measurements.
+
+\begin{table}[htbp]
+\caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
+gold label, hence the accuracy collapse.}
+\label{tab:lat}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lccc}
+\toprule
+Setting & ms/row & Peak mem & Acc \\
+\midrule
+typed (5q/row) & 139--148 & 0.6\,GB & 58.8 \\
+BANKING77 (77) & 245--288 & 1.2\,GB & 79.6--80.6 \\
+CLINC150 (150) & 515--518 & 2.3\,GB & 69.4--69.8 \\
+BANK top-8 & 134 & 0.5\,GB & 9.6 \\
+BANK top-24 & 116 & 0.5\,GB & 28.8 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+The semantic test is decisive: permuting label names while keeping
+descriptions collapses BANKING77 79.6\,$\to$\,5.6\% and CLINC150
+69.8\,$\to$\,3.0\%---near uniform chance. The transfer-relevant signal lives
+in label-name semantics, not phrasing, which is the correct reading of the
+wording-robustness grid above.
+
+\begin{table}[htbp]
+\caption{Calibration per bench: LOTO (shift) vs E (in-distribution).
+Accuracy with 95\% bootstrap CI (2\,000 resamples) where dumps are archived;
+A and LOTO-clinc report point estimates.}
 \label{tab:rq3}
 \begin{center}
 \setlength{\tabcolsep}{3pt}
@@ -164,17 +250,52 @@ is 56--249\,ms/item depending on schema width.
 \toprule
 Model & Bench & Acc & ECE & AUROC & Cov@5\% \\
 \midrule
-LOTO & typed & 59 & 0.053 & 0.64 & 3 \\
-LOTO & banking* & 43 & 0.366 & 0.73 & 0.6 \\
-LOTO & clinc & 65 & 0.176 & 0.82 & 29 \\
-E & typed & 59 & 0.121 & 0.62 & 0.1 \\
-E & banking & 80 & 0.026 & 0.87 & 63 \\
-E & clinc & 70 & 0.090 & 0.85 & 40 \\
+LOTO & typed & 59.1 [57--61] & 0.053 & 0.64 & 3 \\
+LOTO & banking* & 43.4 [39--48] & 0.366 & 0.73 & 0.6 \\
+LOTO & clinc & 65.2 [61--69] & 0.176 & 0.82 & 29 \\
+E & typed & 58.7 [57--61] & 0.121 & 0.62 & 0.1 \\
+E & banking & 79.6 [76--83] & 0.026 & 0.87 & 63 \\
+E & clinc & 69.8 [66--74] & 0.090 & 0.85 & 40 \\
 \bottomrule
 \end{tabular}
 \end{footnotesize}
 \end{center}
 \end{table}
+
+\begin{table}[htbp]
+\caption{Temperature transfer on intent benches (same model): ECE raw, with
+in-distribution temperatures, and with oracle temperatures refit on the bench.}
+\label{tab:ts}
+\begin{center}
+\setlength{\tabcolsep}{3pt}
+\begin{small}
+\begin{tabular}{llccc}
+\toprule
+Model & Bench & ECE raw & ECE TS id & ECE TS or \\
+\midrule
+LOTO & banking (shift) & 0.366 & 0.220 & 0.104 \\
+LOTO & clinc (in-dist) & 0.176 & 0.073 & 0.073 \\
+E & banking (in-dist) & 0.026 & 0.030 & 0.030 \\
+E & clinc (in-dist) & 0.090 & 0.107 & 0.052 \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_reliability.pdf}
+\caption{Reliability on BANKING77: E in-distribution vs LOTO shift.}
+\label{fig:rel}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\columnwidth]{figures/fig_riskcover.pdf}
+\caption{Selective risk vs coverage on BANKING77: E in-distribution vs LOTO shift.}
+\label{fig:rc}
+\end{figure}
 
 \subsection{External Context}
 Table~\ref{tab:external} places our accuracy beside vendor-reported numbers.
@@ -262,12 +383,16 @@ with a batch-size confound (4$\times$8 vs 8$\times$4 at equal effective size 32,
 forced by full-schema OOM); rename/paraphrase/derived types are not yet
 separated, so the transfer credit cannot be attributed to one mechanism; no
 same-protocol Qwen rerun exists (vendor numbers are labeled context only);
-OOS/OOD slices and macro-F1 leaderboard slices are future work; and the
+OOS recall is measured (23.5\%) but no abstain policy is evaluated, and
+macro-F1 leaderboard slices are future work; and the
 \texttt{lfm1.0} license text is still unread, which must precede any release
 claim. How these bound the headline findings: the transfer finding rests on
 augmentation-full LOTO runs only, with no canonical-transfer cell, so the
-transfer credit cannot be attributed to augmentation specifically; the
+transfer credit cannot be attributed to augmentation specifically---and it
+sits at or below a zero-shot embedding baseline on both taxonomies, so
+``substantial'' overstates it; the
 in-distribution canonical win is single-seed with a batch-size confound, so it
 is consistent with seed noise; the calibration finding holds within matched
-models, but transfer of the temperature scaler itself is unmeasured. Each rests
+models, with scaler transfer now measured as partial (0.366\,$\to$\,0.220 vs
+0.104 oracle). Each rests
 on fixed test sets with disclosed residuals.

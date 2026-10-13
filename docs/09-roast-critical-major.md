@@ -158,3 +158,91 @@ Status per issue — DONE / PARTIAL / OPEN:
 - #23 PARTIAL: ambiguitas 2-vs-3 selesai — kode (`_INTENT_ALTS` 3 entri, varian 0 = kanonis) → teks "canonical + 2 variants"; typed range-nol + grid ulang → Fase 2.
 - #24 DONE: "honest/reproduced/none-touch/calibrated/load-bearing" dibuang; limitations dipetakan ke 3 temuan.
 - #25 OPEN (Fase 1; Algorithm 1 dipertahankan sementara).
+
+## Eksekusi Fase 1 lokal — PR #30 (`feat/roast-fase1`, CPU saja)
+
+Dumps `items_pred.json` ternyata menyimpan full prob vector + gold → 80% Fase 1
+jalan lokal. Berat terukur: bootstrap 2000 × 3 bench ≈ 70 detik/file;
+figure <3 detik (`uv run --with matplotlib`, tanpa install).
+
+- #9 DONE (parsial, tanpa GPU): `score_preds.py --boot 2000` dari dumps →
+  `docs/eval/colab/{loto-banking,ablasi-full}/metrics_ci.json` (baru, file lama
+  tak disentuh). LOTO-banking 43.4 [39.4–47.6]; E-banking 79.6 [76–83].
+  A dan LOTO-clinc tanpa dumps → point estimates + disclosure di caption.
+- #8 DONE (parsial): TS-oracle refit per-tipe dari prob vector (eksak via
+  shift-invariance softmax) → Tab. `tab:ts` baru: LOTO-shift 0.366 → TS-id
+  0.220 → oracle 0.104. Klaim "does not transfer" direvisi jujur jadi
+  "transfers partially" (abstrak/intro/results/discussion). TS-oracle penuh +
+  AURC → butuh cal dumps (Colab).
+- #25 PARTIAL: `fig_reliability.pdf` + `fig_riskcover.pdf` (matplotlib lokal,
+  E-in-dist vs LOTO-shift) + diagram tikz `figures/arch.tex`. Naskah 6→7
+  halaman. Loss-curve figure → butuh train console (Colab). Tab. loto → para
+  belum digabung; Algorithm 1 dipertahankan.
+- #19 OPEN: butuh `cal_items.pt` (hanya di kernel output) → Colab.
+
+## Eksekusi Colab (masih PR #30, `feat/roast-fase1`)
+
+Kaggle CLI 2.x butuh OAuth (`kaggle auth login`, user menjalankannya);
+token env lama 401 di kedua format. Jejak: tidak ada secret di repo.
+
+- Kernel outputs diunduh lokal (`kaggle kernels output` ×7): kernel **stdout
+  log** (~300KB) ternyata memuat full train-loss + eval-loss per epoch, plus
+  `run_meta.json` + `cal/test_items.pt` per run. Yang di-commit (kecil,
+  traceable): `docs/eval/kaggle/*/loss_series.json` + `run_meta.json`;
+  `.pt`/log penuh tetap di `/tmp` (tak masuk repo).
+- #20 CLOSED total + koreksi jujur: klaim "epoch 2 always wins" **salah
+  untuk 1 dari 7 run** — seed3407 best = ep1 (0.6495 < 0.6965 < 0.8421).
+  Tab. overfit sekarang 7 baris × 3 epoch + Figure loss-curve;
+  teks: "best at epoch 1 or 2, never 3".
+- #19 PARTIAL (butuh 1 sesi T4, lalu stop): `final/` seed3407 (76MB) +
+  `cal_items.pt` di-upload; `_decision_logits` → `cal_logits.json`
+  (192 questions) → `cal_metrics.json`: raw ECE **0.119 [0.084–0.191]**,
+  equal-mass 0.122, cross-fitted 0.081 (logged), in-sample TS 0.067
+  (T 6–13, overconfident). CI ±5pt = bukti kuantitatif klaim #19;
+  kalimatnya masuk §4. Cal ≥1k tetap butuh perubahan protokol (future work).
+- Colab T4 sempat ke-block orphan assignment (~30 mnt) lalu Sessions READY;
+  sesi di-stop setelah dump (no burn). `uv run --with matplotlib` untuk
+  figure (tanpa install).
+
+## Eksekusi Fase 2 (masih PR #30) — full-test E di Kaggle, probe di Colab
+
+Kuota Kaggle: GPU sisa 2.39/30h (refresh 17 Okt) → 1 job国内 hati-hati.
+TPU 20h tak terpakai (Unsloth butuh CUDA).
+
+- #13 PARTIAL: kernel `amalanfadilgaib/lfm-decs1-v7-eval-e-full`
+  (`eval_agg.py`, batched BS=4, N_BOOT=0) → `docs/eval/kaggle/eval-E-full/agg.json`:
+  E full-test typed **58.8** [53.9–63.5] / BANK **80.6** [79.1–81.9] (3.080) /
+  CLINC **69.4** [68.2–70.6] (5.500), in-scope 79.6, **OOS-recall 23.5%**
+  [21.0–26.2] (1.000, Wilson CI). Full ≈ subset (79.6/69.8) → ranking subset
+  transfer. Seeds + LOTO full-test tak muat kuota → subset + disclosure.
+- #23 PARTIAL (semantik, E, Colab `eval_probe.py`): label-shuffle
+  (nama diacak, deskripsi tetap) BANK 79.6→**5.6%**, CLINC 69.8→**3.0%** —
+  sinyal ada di semantik nama label. Para-grid ulang seeds tertunda
+  (bobot seed41/42 tak terunduh saat auth hidup).
+- #21 PARTIAL (latency per-row T4 4-bit, E): typed 139–148ms/row,
+  BANK77 245–288ms (1.2GB), CLINC150 515–518ms (2.3GB); top8/24 134/116ms
+  tapi akurasi hancur (9.6/28.8%) karena gold terpotong. Klaim lama 56–249ms
+  direvisi di naskah. Batched ~2× lebih cepat (127/221ms) — deployment =
+  angka per-row. Perbandingan vs generatif/encoder → Fase 3 (butuh modelnya).
+- Infra: VM CLI mati ~6× di umur 30–40 mnt → pola kerja = job <20 mnt +
+  `RESUME=1`/save-per-chunk + download langsung (`eval_full.py`,
+  `eval_probe.py` MODE/KS/BENCH filter). Kernel Kaggle 2× ERROR sebelum jalan
+  (FINAL env, lalu unsloth tak terinstal — keduanya di-fix di skrip).
+  Kernel `ablasi-none-full` + semua kernel eval 403 permanen (tak bisa
+  diunduh); A tetap tanpa bobot → subset + disclosure.
+
+## Eksekusi Fase 2 lanjutan (masih PR #30) — embedding baseline (CPU lokal)
+
+- #4 CLOSED (teks + data): `code/train_decision_models/embed_baseline.py`
+  (bge-small-en-v1.5, CPU, `uv run --with sentence-transformers`) →
+  `docs/eval/embed_baseline.json`: BANKING77 **68.0%** full / 67.0 sub,
+  CLINC150 **56.9%** full / 59.4 sub — tanpa training, nama label saja.
+  Hasilnya di BAWAH transfer kita di banking (43.4) dan setara di clinc
+  (55.6): framing "substantial" direvisi jujur di abstrak/intro/§6 +
+  Tab. loto + §5 metode. Subset sampler beda (seed sama) → disclosed.
+- Para-grid seeds tertunda (tunggu bobot seed41/42).
+- 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
+  (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
+  #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.
+  `eval_full.py` (BENCH/PARA_ONLY/RESUME) + `eval_probe.py` (BENCH/MODE/KS)
+  di-commit sebagai harness tahan-mati untuk kelanjutan kelak.

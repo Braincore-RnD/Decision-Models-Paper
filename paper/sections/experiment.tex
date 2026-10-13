@@ -26,7 +26,10 @@ with Brier, NLL, 10-bin ECE, error-detection AUROC, and coverage at 5\% risk.
 \end{algorithm}
 Vendor numbers (Unsloth Qwen, Cloudflare Clef) are cited as labeled context,
 never as rerun baselines; the size-matched reference is d1-omni-600M from the
-same LFM lineage~\cite{liquid-d1}. Every run archives adapters, head, merged
+same LFM lineage~\cite{liquid-d1}. The honest zero-shot floor is a baseline we
+run ourselves: cosine similarity between utterances and label names with
+\texttt{BAAI/bge-small-en-v1.5}~\cite{bge-small} on CPU (no training, no
+label descriptions), on same-seed 500-subsets and full tests. Every run archives adapters, head, merged
 weights, and \texttt{run\_meta.json} in its kernel output; lightweight results
 (\texttt{eval\_results.json}, probability dumps, metric tables) are versioned
 in \texttt{docs/eval/} of the public repo

@@ -1,0 +1,61 @@
+{
+ "model": "LiquidAI/LFM2.5-350M",
+ "seed": 42,
+ "max_seq_len": 4096,
+ "epochs": 3.0,
+ "mixture": true,
+ "n_rows": 20400,
+ "augment": true,
+ "aug_mode": "full",
+ "aug_note": "",
+ "holdout_taxonomy": "none",
+ "max_decisions": 0,
+ "lewidi_flip": false,
+ "mix_weights": {
+  "ag_news": 1.0,
+  "arc": 1.0,
+  "banking77": 3.0,
+  "boolq": 1.0,
+  "clinc150": 3.0,
+  "commonsense_qa": 1.0,
+  "mmlu": 1.0,
+  "mnli": 1.0,
+  "prompt_injections": 1.0,
+  "snli": 1.0,
+  "sst5": 1.0,
+  "wanli": 1.0,
+  "typed_decisions": 1.0
+ },
+ "n_rows_built": 30000,
+ "decisions_total": 43151,
+ "skipped": 858,
+ "skip_reason": "row 15: \"q\" needs a list of criteria levels (and 544 more like it)",
+ "n_train": 28870,
+ "n_cal": 136,
+ "n_test": 136,
+ "resume": null,
+ "calibrate": {
+  "accuracy": 0.8,
+  "ece": 0.07361437685978718,
+  "loss": 0.5926493218073318,
+  "record_accuracy": 0.75,
+  "fitted_types": [
+   0,
+   1,
+   2
+  ]
+ },
+ "internal_test": {
+  "accuracy": 0.7902439024390244,
+  "ece": 0.047735731012937516,
+  "loss": 0.5829489616286837,
+  "record_accuracy": 0.7352941176470589
+ },
+ "external_test": {
+  "accuracy": 0.555,
+  "ece": 0.04920425787568093,
+  "loss": 1.0904684821479023,
+  "record_accuracy": 0.1475
+ },
+ "git_hash": null
+}
