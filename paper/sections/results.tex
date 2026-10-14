@@ -52,43 +52,27 @@ in-distribution A holds 86.0--86.4\% on BANKING77. Ranges this tight mean the
 effect lives in schema semantics, not phrasing.
 
 \begin{table}[htbp]
-\caption{Paraphrase grid: median [range] over canonical + 2 wording/option-order variants.}
+\caption{Transfer accuracy with baselines and paraphrase robustness (median
+[range] over canonical + 2 variants; transfer point with bootstrap CI).}
 \label{tab:para}
 \begin{center}
 \setlength{\tabcolsep}{3pt}
 \begin{footnotesize}
 \begin{tabular}{lcc}
 \toprule
-Model & BANK77 & CLINC150 \\
-\midrule
-LOTO-banking & 42.8 [42.2--43.6] & --- \\
-LOTO-clinc & --- & 56.0 [55.6--57.0] \\
-A canonical & 86.0 [86.0--86.4] & 84.6 [84.4--84.8] \\
-E augmented & 79.4 [79.0--80.2] & 70.0 [69.8--70.4] \\
-\bottomrule
-\end{tabular}
-\end{footnotesize}
-\end{center}
-\end{table}
-
-\begin{table}[htbp]
-\caption{LOTO transfer vs in-distribution means (accuracy \%).}
-\label{tab:loto}
-\begin{center}
-\setlength{\tabcolsep}{4pt}
-\begin{small}
-\begin{tabular}{lcc}
-\toprule
-Setting & BANKING77 & CLINC150 \\
+Setting & BANK77 & CLINC150 \\
 \midrule
 Held out (transfer) & 43.4 [39--48] & 55.6 \\
+\quad paraphrase range & 42.2--43.6 & 55.6--57.0 \\
 In-distribution mean & 81.3 & 72.9 \\
+A canonical (para) & 86.0 [86.0--86.4] & 84.6 [84.4--84.8] \\
+E augmented (para) & 79.4 [79.0--80.2] & 70.0 [69.8--70.4] \\
 Untrained head & 2.4 & 17.2 \\
 Uniform chance & 1.3 & 0.67 \\
 Zero-shot embedding (full) & 68.0 & 56.9 \\
 \bottomrule
 \end{tabular}
-\end{small}
+\end{footnotesize}
 \end{center}
 \end{table}
 
@@ -208,7 +192,11 @@ truncating BANKING77 to 8/24 options cuts latency to 134/116\,ms but destroys
 accuracy (9.6\%/28.8\%) since gold labels are cut---fit schemas in context
 first (Table~\ref{tab:lat}). Batched evaluation is $\sim$2$\times$ faster
 (127/221\,ms) but per-row is the deployment number. The earlier 56--249\,ms
-range is superseded by these measurements.
+range is superseded by these measurements. Cross-paradigm, the picture is
+incomplete by measurement: generative attempts cost 183\,ms/row but produce
+$\sim$100\% violation (nothing valid to time), and the encoder harness did
+not log latency---so O(1)-vs-O(T) remains complexity analysis, not a
+three-way measurement.
 
 \begin{table}[htbp]
 \caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
@@ -422,8 +410,9 @@ with a batch-size confound (4$\times$8 vs 8$\times$4 at equal effective size 32,
 forced by full-schema OOM); rename/paraphrase/derived types are not yet
 separated, so the transfer credit cannot be attributed to one mechanism; no
 same-protocol Qwen rerun exists (vendor numbers are labeled context only);
-OOS recall is measured (23.5\%) but no abstain policy is evaluated, and
-macro-F1 leaderboard slices are future work; and the
+OOS recall is measured (23.5\%) but no abstain policy is evaluated,
+macro-F1 leaderboard slices are future work, and 5 of 18 mixture subsets
+remain license-unaudited (Section~3); and the
 \texttt{lfm1.0} license text is still unread, which must precede any release
 claim. How these bound the headline findings: the transfer finding rests on
 augmentation-full LOTO runs only, with no canonical-transfer cell, so the
