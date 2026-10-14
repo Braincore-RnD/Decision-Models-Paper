@@ -11,7 +11,18 @@ Open-Jev \texttt{options} lists (\texttt{id: description}) become criteria with
 annotator-share probabilities; LeWiDi soft labels map onto
 \texttt{true}/\texttt{false} (abusive/non-abusive) and six sarcasm levels;
 GoEmotions multi-rater rows become per-emotion fractions. All rows are rendered
-into canonical decision records.
+into canonical decision records. The 13 standard sources are
+\texttt{ag\_news}, \texttt{arc} (CC-BY-SA-4.0), \texttt{banking77} (CC-BY-4.0,
+3$\times$ weight), \texttt{boolq} (CC-BY-SA-3.0), \texttt{clinc150} (CC-BY-3.0,
+3$\times$ weight), \texttt{commonsense\_qa} (MIT), \texttt{mmlu} (MIT),
+\texttt{mnli} (mixed, see card), \texttt{prompt\_injections},
+\texttt{snli} (CC-BY-SA-4.0), \texttt{sst5}, \texttt{wanli}, and
+\texttt{typed-decisions} (Apache-2.0); weights sum to 17 shares over 20\,400
+rows (3\,600 each for banking77/clinc150, 1\,200 each otherwise). Customs add
+Open-Jev (2 subsets, 6\,000), LeWiDi (2 configs, 2\,400), and GoEmotions
+(1\,200). Licenses verified against Hub cards 2026-10-14 except
+\texttt{sst5}, \texttt{wanli}, LeWiDi, Open-Jev, and GoEmotions, which remain
+unaudited (see Section~6 limits).
 
 \begin{table}[htbp]
 \caption{Training mixture: 20\,400 standard + 9\,600 consensus-soft = 30\,000 rows.

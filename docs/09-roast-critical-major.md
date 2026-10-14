@@ -252,6 +252,10 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   JSON zero/fewshot = 0.0% acc, ~100% violation, 183ms/row → `docs/eval/generative/`.
   Tak ada instruct-350M vendor. Klaim 1.5–4s di intro diganti hasil ukur.
   #5 CLOSED.
+- 2026-10-14: sisa tanpa-GPU (#25 gabung Tab loto→para; #14 lisensi 9
+  terverifikasi via API Hub + 5 unaudited disclosed; #21 kalimat
+  perbandingan 3-paradigma) → PR polish. Token HF hilang dari tree
+  (revoke di history tetap wajib).
 - 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
   (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
   #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.
