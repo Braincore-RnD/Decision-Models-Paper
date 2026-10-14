@@ -2,7 +2,8 @@
 Enterprise automation---fraud routing, ticket triage, policy enforcement---needs
 decisions that are fast, syntactically valid, and uncertainty-aware. The dominant
 practice prompts an autoregressive model to emit JSON, incurring three costs:
-(i)~$O(T)$ sequential decoding (1.5--4\,s per decision with KV-cache traffic),
+(i)~$O(T)$ sequential decoding (measured 0.18\,s per attempt with
+$\sim$100\% schema violation on our backbone, Section~6),
 (ii)~non-zero schema-violation rates under constrained budgets, and
 (iii)~systematic overconfidence from preference-based alignment, which makes raw
 softmax scores unusable for risk-controlled automation.

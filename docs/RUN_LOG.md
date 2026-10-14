@@ -204,3 +204,18 @@ dump: `docs/eval/encoder-modernbert/` (items di HF, metrik di repo).
 Takeaway: encoder menang CLINC (72.8 vs 69.4), kalah BANK (77.0 vs 80.6)
 dan typed (48.8 vs 58.8); kalibrasi jauh lebih buruk; OOS sama-sama jebol
 (23.3 vs 23.5). Sisa #5: baseline generatif (LFM2.5-350M JSON).
+
+## 9. Baseline generatif backbone-sama (2026-10-14, Colab T4, #5b)
+
+`code/train_decision_models/eval_generative.py`, MODEL=LiquidAI/LFM2.5-350M
+(bobot identik), prompt->JSON zero-shot + fewshot-1, 500 banking intents.
+Dump: `docs/eval/generative/`.
+
+| Setting | acc | violation | ms/row |
+|---|---|---|---|
+| zero-shot | 0.0 | ~100% | 183 |
+| fewshot-1 (n=100) | 0.0 | ~100% | — |
+
+Takeaway: base backbone tak bisa ikut skema JSON sama sekali (output sampah
+HTML-ish) — head-lah yang membuat backbone usable. Tak ada varian instruct
+350M vendor; klaim latensi-vs-generatif = kompleksitas, bukan pengukuran.

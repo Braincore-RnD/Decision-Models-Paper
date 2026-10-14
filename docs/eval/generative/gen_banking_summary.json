@@ -1,0 +1,9 @@
+{
+ "bench": "banking77",
+ "n": 500,
+ "acc": 0.0,
+ "violation_rate": 1.0,
+ "ece10": 0.0,
+ "n_conf": 0,
+ "ms_per_row": 183.3779448179996
+}
