@@ -256,6 +256,10 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   terverifikasi via API Hub + 5 unaudited disclosed; #21 kalimat
   perbandingan 3-paradigma) → PR polish. Token HF hilang dari tree
   (revoke di history tetap wajib).
+- 2026-10-14: latency encoder di Colab (`eval_enc_latency.py`, bobot HF):
+  BANK-full 0.7698 (reproduksi 77.0) 102ms/1.19GB; top8/24 13/26ms.
+  Jalan berliku (bug `n` shadow + bias gold-cut + 11 VM mati) → Tab lat +
+  kalimat §6 + prefill §4. Clinc-encoder batal (VM tak bertahan 12 mnt).
 - 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
   (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
   #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.

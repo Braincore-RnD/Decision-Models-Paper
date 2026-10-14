@@ -194,9 +194,10 @@ first (Table~\ref{tab:lat}). Batched evaluation is $\sim$2$\times$ faster
 (127/221\,ms) but per-row is the deployment number. The earlier 56--249\,ms
 range is superseded by these measurements. Cross-paradigm, the picture is
 incomplete by measurement: generative attempts cost 183\,ms/row but produce
-$\sim$100\% violation (nothing valid to time), and the encoder harness did
-not log latency---so O(1)-vs-O(T) remains complexity analysis, not a
-three-way measurement.
+$\sim$100\% violation (nothing valid to time), and encoder latency is
+measured on banking only (102\,ms/row at 77 options, i.e.\ cheaper per row
+than ours at 245--288\,ms, with the same sublinear scaling in options)---so
+O(1)-vs-O(T) remains complexity analysis, not a three-way measurement.
 
 \begin{table}[htbp]
 \caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
@@ -214,6 +215,8 @@ BANKING77 (77) & 245--288 & 1.2\,GB & 79.6--80.6 \\
 CLINC150 (150) & 515--518 & 2.3\,GB & 69.4--69.8 \\
 BANK top-8 & 134 & 0.5\,GB & 9.6 \\
 BANK top-24 & 116 & 0.5\,GB & 28.8 \\
+ModernBERT BANK (77) & 102 & 1.2\,GB & 77.0 \\
+ModernBERT BANK top-8/24 & 13/26 & 0.7--0.8\,GB & n/a \\
 \bottomrule
 \end{tabular}
 \end{small}
