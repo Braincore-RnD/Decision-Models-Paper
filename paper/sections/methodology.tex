@@ -32,7 +32,10 @@ prior with a joint MLP over
 $[\mathbf{f}_q; \mathbf{o}; \mathbf{f}_q\odot\mathbf{o};
 |\mathbf{f}_q-\mathbf{o}|]$ gated by $\sigma(g)$. Requesting a plain LM from
 the Unsloth API attaches this Clef-design head by default, confirming the
-lineage. Inference is one forward pass with per-question softmax.
+lineage. Inference is one forward pass with per-question softmax:
+$O(1)$ decoding steps but $O(L)$ prefill with $L$ growing in $|$options$|$---measured
+per-row T4 latency rises 13\,ms at 8 options to 245--288\,ms at 77 and
+515--518\,ms at 150 (Section~\ref{sec:results}).
 Figure~\ref{fig:head} sketches the data flow.
 \input{figures/arch}
 
