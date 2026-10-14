@@ -1,0 +1,21 @@
+{
+ "bench_results": {
+  "typed_decisions": {
+   "accuracy": 0.4875,
+   "ece": 0.19435126349329945,
+   "total": 400
+  },
+  "banking77": {
+   "accuracy": 0.7698051948051948,
+   "ece": 0.15788205389368837,
+   "total": 3080
+  },
+  "clinc150": {
+   "accuracy": 0.728,
+   "ece": 0.21455441943352865,
+   "total": 5500
+  }
+ },
+ "oos_recall": 0.233,
+ "seed": 3407
+}

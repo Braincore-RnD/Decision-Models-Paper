@@ -186,3 +186,21 @@ Artefak per run: final+merged+ckpt+`run_meta.json` di output kernel
 masing-masing; hasil ringan di `docs/eval/`; tracker di
 `docs/RECOMMENDATION.md` §6.4. Takeaway: `RECOMMENDATION.md` §7
 (transfer 44/55.6, confound truncasi, kalibrasi tak transfer).
+
+## 8. Baseline encoder ModernBERT (2026-10-14, Colab T4, #5a)
+
+Notebook `code/train_decision_models/colab_train_modernbert_base_decision.ipynb`
+(SEED=3407, batch 4xaccum4, 5 epoch, best-val ep5 77.10%, T=1.600).
+Bobot: [itsdevice/modernbert-systemone](https://huggingface.co/itsdevice/modernbert-systemone);
+dump: `docs/eval/encoder-modernbert/` (items di HF, metrik di repo).
+
+| Bench | Full acc [CI] | ECE | AUROC |
+|---|---|---|---|
+| typed | 48.8 [43.8-54.0] (400) | 0.194 | 0.704 |
+| BANKING77 | 77.0 [75.5-78.5] (3080) | 0.158 | 0.845 |
+| CLINC150 | 72.8 [71.6-74.0] (5500) | 0.215 | 0.832 |
+| OOS recall | 23.3 (1000) | — | — |
+
+Takeaway: encoder menang CLINC (72.8 vs 69.4), kalah BANK (77.0 vs 80.6)
+dan typed (48.8 vs 58.8); kalibrasi jauh lebih buruk; OOS sama-sama jebol
+(23.3 vs 23.5). Sisa #5: baseline generatif (LFM2.5-350M JSON).
