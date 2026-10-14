@@ -241,6 +241,9 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   (55.6): framing "substantial" direvisi jujur di abstrak/intro/§6 +
   Tab. loto + §5 metode. Subset sampler beda (seed sama) → disclosed.
 - Para-grid seeds tertunda (tunggu bobot seed41/42).
+- 2026-10-14: notebook `colab_train_xlm_roberta_decision.ipynb` dipatch jadi
+  baseline #5a ModernBERT (full-opsi, best-val, dumps, run_meta; token dibuang
+  dari tree — revoke tetap wajib). Alternatif .py: `train_encoder_baseline.py`.
 - 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
   (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
   #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.
