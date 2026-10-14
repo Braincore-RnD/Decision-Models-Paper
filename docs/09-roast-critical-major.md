@@ -244,6 +244,10 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
 - 2026-10-14: notebook `colab_train_xlm_roberta_decision.ipynb` dipatch jadi
   baseline #5a ModernBERT (full-opsi, best-val, dumps, run_meta; token dibuang
   dari tree — revoke tetap wajib). Alternatif .py: `train_encoder_baseline.py`.
+- 2026-10-14: ModernBERT train selesai (Colab, best ep5 val 77.10%, T=1.600;
+  [HF](https://huggingface.co/itsdevice/modernbert-systemone)) →
+  `docs/eval/encoder-modernbert/`: BANK 77.0/CLINC 72.8/typed 48.8 full,
+  OOS-recall 23.3. Tab. encoder masuk naskah; #5a done, #5b/c generatif open.
 - 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
   (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
   #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.

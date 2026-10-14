@@ -238,6 +238,34 @@ descriptions collapses BANKING77 79.6\,$\to$\,5.6\% and CLINC150
 in label-name semantics, not phrasing, which is the correct reading of the
 wording-robustness grid above.
 
+A fine-tuned encoder baseline (ModernBERT-base, 149M, same official tests,
+run by us) splits the comparison (Table~\ref{tab:encoder}): the encoder wins
+CLINC150 (72.8 vs 69.4), we win BANKING77 (80.6 vs 77.0) and typed (58.8 vs
+48.8). Both beat zero-shot embedding in-distribution, both collapse OOS
+recall to the same 23--24\%, and our calibration is far tighter (ECE
+0.026--0.090 vs 0.158--0.215)---the decision head buys uncertainty quality,
+not raw accuracy.
+
+\begin{table}[htbp]
+\caption{Full-test accuracy \% [95\% CI]: ours (E, 350M) vs fine-tuned
+ModernBERT-base (149M) vs zero-shot embedding.}
+\label{tab:encoder}
+\begin{center}
+\setlength{\tabcolsep}{4pt}
+\begin{small}
+\begin{tabular}{lccc}
+\toprule
+Model & BANK77 & CLINC150 & typed \\
+\midrule
+Ours E & 80.6 [79--82] & 69.4 [68--71] & 58.8 [54--64] \\
+ModernBERT & 77.0 [76--78] & 72.8 [72--74] & 48.8 [44--54] \\
+Embedding & 68.0 & 56.9 & --- \\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+
 \begin{table}[htbp]
 \caption{Calibration per bench: LOTO (shift) vs E (in-distribution).
 Accuracy with 95\% bootstrap CI (2\,000 resamples) where dumps are archived;
