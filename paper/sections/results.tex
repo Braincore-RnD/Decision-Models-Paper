@@ -325,6 +325,17 @@ E & clinc (in-dist) & 0.090 & 0.107 & 0.052 \\
 \label{fig:rc}
 \end{figure}
 
+\subsection{Generative Baseline: Same Backbone}
+Prompting the identical LFM2.5-350M weights for JSON (zero- and one-shot,
+500 banking intents) yields \textbf{0.0\% accuracy at $\sim$100\% schema
+violation} (183\,ms/row of unparseable output): the base backbone cannot
+follow a JSON schema at all, so no same-backbone generative
+accuracy/latency comparison exists to report. The decision head is what makes
+this backbone usable---and the latency-vs-generative claim rests on decoding
+complexity ($O(1)$ vs $O(T)$ steps), not a measurement. No 350M instruct
+variant exists from the vendor to serve as the ``dominant practice''
+reference, which we disclose rather than substitute across families.
+
 \subsection{External Context}
 Table~\ref{tab:external} places our accuracy beside vendor-reported numbers.
 Metric and protocol boundaries differ per row (Decision Index reports macro-F1
