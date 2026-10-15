@@ -260,6 +260,10 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   BANK-full 0.7698 (reproduksi 77.0) 102ms/1.19GB; top8/24 13/26ms.
   Jalan berliku (bug `n` shadow + bias gold-cut + 11 VM mati) → Tab lat +
   kalimat §6 + prefill §4. Clinc-encoder batal (VM tak bertahan 12 mnt).
+- 2026-10-15: user menjalankan ulang sel #21 di Colab manual (1 job,
+  Popen start_new_session) → CLINC-full 0.7285 (reproduksi 72.8) 130ms /
+  1.29GB → `docs/eval/encoder-latency/enc_clinc.json` + Tab lat + kalimat §6.
+  #21 sisa: throughput batch-besar saja.
 
 ## Status akhir 2026-10-14 — PR merged: #29, #31, #32, #33, #34, #35, #36
 
