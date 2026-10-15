@@ -18,6 +18,7 @@ HF_REPO = os.environ.get("HF_REPO", "itsdevice/modernbert-systemone")
 SEED = int(os.environ.get("SEED", "3407"))
 OUT = os.environ.get("OUT", "enc_lat.json")
 JOBS = [j.strip() for j in os.environ.get("JOBS", "all").split(",")]
+BS = int(os.environ.get("BS", "16"))  # ponytail: BS=32/64 untuk throughput batch #21
 print("eval_enc_latency SCRIPT_V=4 keepall-validonly", flush=True)
 
 import torch  # noqa: E402
@@ -115,8 +116,8 @@ def main():
                "options": r["options"], "label": r["label"], "ntok": r["ntok"]} for r in rows]
         t0 = time.perf_counter()
         ok, n, n_timed = 0, 0, 0
-        for i in range(0, len(ds), 16):
-            ch = ds[i:i + 16]
+        for i in range(0, len(ds), BS):
+            ch = ds[i:i + BS]
             pad = tok.pad_token_id or 0
             ms = max(len(b["input_ids"]) for b in ch)
             B = len(ch)

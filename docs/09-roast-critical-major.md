@@ -260,6 +260,22 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   BANK-full 0.7698 (reproduksi 77.0) 102ms/1.19GB; top8/24 13/26ms.
   Jalan berliku (bug `n` shadow + bias gold-cut + 11 VM mati) → Tab lat +
   kalimat §6 + prefill §4. Clinc-encoder batal (VM tak bertahan 12 mnt).
+- 2026-10-15: user menjalankan ulang sel #21 di Colab manual (1 job,
+  Popen start_new_session) → CLINC-full 0.7285 (reproduksi 72.8) 130ms /
+  1.29GB → `docs/eval/encoder-latency/enc_clinc.json` + Tab lat + kalimat §6.
+  #21 sisa: throughput batch-besar saja.
+- 2026-10-15: throughput BS=32 → 100.4ms vs BS=16 → 102.1ms (sama, prefill-bound,
+  mem 1.76GB) → `docs/eval/encoder-latency/enc_b32.json` + klausa §6.
+  #21 DONE (3 paradigma terukur; generatif tak valid).
+
+## Status akhir 2026-10-14 — PR merged: #29, #31, #32, #33, #34, #35, #36
+
+- Closed (10): #4, #5, #8, #9, #11, #17, #18, #20, #22, #24.
+- Open parsial (7): #12 (lisensi/rilis), #13 (seeds/LOTO full),
+  #14 (5 lisensi + rows per-sumber), #19 (cal ≥1k), #21 (clinc-encoder +
+  throughput), #23 (grid seeds, dibatalkan), #25 (nasib Algorithm 1).
+- Open utuh (5): #6, #7, #10, #15, #16. Minor #26–28 tak dicakup.
+- Naskah: 8 halaman, build 0 Overfull hbox, 0 Error.
 - 2026-10-14: 7 VM CLI mati di umur 25–40 mnt + 1 download `{}` korup
   (tak download langsung saat job selesai) → para-subset seeds DIBATALKAN.
   #23 tetap parsial: E/LOTO/A dari log lama (disclosed) + bukti shuffle baru.

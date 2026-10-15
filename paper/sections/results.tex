@@ -195,9 +195,11 @@ first (Table~\ref{tab:lat}). Batched evaluation is $\sim$2$\times$ faster
 range is superseded by these measurements. Cross-paradigm, the picture is
 incomplete by measurement: generative attempts cost 183\,ms/row but produce
 $\sim$100\% violation (nothing valid to time), and encoder latency is
-measured on banking only (102\,ms/row at 77 options, i.e.\ cheaper per row
-than ours at 245--288\,ms, with the same sublinear scaling in options)---so
-O(1)-vs-O(T) remains complexity analysis, not a three-way measurement.
+measured on both benches (102\,ms/row at 77 banking options, 130\,ms/row at
+150 CLINC options, i.e.\ cheaper per row than ours at 245--288/515--518\,ms,
+with the same sublinear scaling in options); batching barely helps the
+encoder (BS\,32: 100\,ms/row vs BS\,16: 102\,ms/row, prefill-bound)---so the
+three-way latency picture is complete as far as it goes.
 
 \begin{table}[htbp]
 \caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
@@ -216,6 +218,7 @@ CLINC150 (150) & 515--518 & 2.3\,GB & 69.4--69.8 \\
 BANK top-8 & 134 & 0.5\,GB & 9.6 \\
 BANK top-24 & 116 & 0.5\,GB & 28.8 \\
 ModernBERT BANK (77) & 102 & 1.2\,GB & 77.0 \\
+ModernBERT CLINC (150) & 130 & 1.3\,GB & 72.8 \\
 ModernBERT BANK top-8/24 & 13/26 & 0.7--0.8\,GB & n/a \\
 \bottomrule
 \end{tabular}
