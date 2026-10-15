@@ -264,6 +264,9 @@ TPU 20h tak terpakai (Unsloth butuh CUDA).
   Popen start_new_session) → CLINC-full 0.7285 (reproduksi 72.8) 130ms /
   1.29GB → `docs/eval/encoder-latency/enc_clinc.json` + Tab lat + kalimat §6.
   #21 sisa: throughput batch-besar saja.
+- 2026-10-15: throughput BS=32 → 100.4ms vs BS=16 → 102.1ms (sama, prefill-bound,
+  mem 1.76GB) → `docs/eval/encoder-latency/enc_b32.json` + klausa §6.
+  #21 DONE (3 paradigma terukur; generatif tak valid).
 
 ## Status akhir 2026-10-14 — PR merged: #29, #31, #32, #33, #34, #35, #36
 

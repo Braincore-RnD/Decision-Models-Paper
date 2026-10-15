@@ -197,8 +197,9 @@ incomplete by measurement: generative attempts cost 183\,ms/row but produce
 $\sim$100\% violation (nothing valid to time), and encoder latency is
 measured on both benches (102\,ms/row at 77 banking options, 130\,ms/row at
 150 CLINC options, i.e.\ cheaper per row than ours at 245--288/515--518\,ms,
-with the same sublinear scaling in options)---so the remaining gap is only
-large-batch throughput, not a missing paradigm.
+with the same sublinear scaling in options); batching barely helps the
+encoder (BS\,32: 100\,ms/row vs BS\,16: 102\,ms/row, prefill-bound)---so the
+three-way latency picture is complete as far as it goes.
 
 \begin{table}[htbp]
 \caption{Latency vs schema width, per-row T4 (E, 4-bit). Truncation cuts the
