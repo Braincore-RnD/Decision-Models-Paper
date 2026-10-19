@@ -294,6 +294,7 @@ else:
 
 args = dict(
     per_device_train_batch_size=BATCH,
+    per_device_eval_batch_size=int(os.environ.get("EVAL_BATCH", "8")),  # #7: AUG-none OOM eval@4096
     gradient_accumulation_steps=GRAD_ACCUM,
     num_train_epochs=EPOCHS,
     learning_rate=2e-4,
