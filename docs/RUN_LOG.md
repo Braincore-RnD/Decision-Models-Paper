@@ -173,6 +173,16 @@ Overfit ep-3 konsisten di semua run (best selalu ep-2).
 | 3 | `…-seed42-full` | `SEED=42` | typed-ext 55.5; best ep-2 (0.62→1.01) |
 | 4 | `…-loto-banking-full` | `HOLDOUT_TAXONOMY=banking77` | BANKING77 transfer **44% [38–47%]** (eval #9) |
 | 5 | `…-loto-clinc-full` | `HOLDOUT_TAXONOMY=clinc150` | CLINC150 transfer **55.6%** (eval #12, Colab) |
+
+## 8. Run #7 — A-seed41/42 (2026-10-18/19, AUG=none + EVAL_BATCH=2)
+
+A-seed3407 sudah ada (`ablasi-none-full`: BANK 86/CLINC 84 in-dist, ext 0.5925).
+`A-seed41`: ext 0.58, int 0.7376, eval_loss 0.767→0.676→0.8685 (best ep-2).
+`A-seed42`: ext 0.5165, int 0.7071, eval_loss 0.7177→0.6126→0.756 (best ep-2).
+Catatan: `external_test` = typed-test in-dist (bukan bench LOTO);
+MAX_DECISIONS tak aktif (rows 20400 < 31754) → confound +25% tetap ada, disclose.
+Ablasi in-dist 3-seed (typed-test ext): A 0.563±0.033 vs E 0.549±0.011 —
+selisih 1.4pt < spread A sendiri (7.6pt). Klaim "canonical wins" TAK TAHAN (#7).
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
