@@ -91,7 +91,7 @@ Zero-shot embedding (full) & 68.0 & 56.9 \\
 Row-matched canonical (A) vs full-augmentation (E) training gives:
 
 \begin{table}[htbp]
-\caption{Ablation A vs E (rows subsampled to 28\,000 each; decisions 31\,754 vs 39\,560).
+\caption{Ablation A vs E (rows subsampled to 28\,000 each; decisions 32\,500 vs 40\,306).
 E intervals from 2\,000 bootstrap resamples; A reports point estimates
 (dumps not archived locally).}
 \label{tab:ablation}
@@ -118,7 +118,7 @@ the in-distribution comparison is a null result: three-seed typed-ext gives A
 seed spread---indistinguishable from seed noise, so ``canonical wins'' does
 not hold. Augmentation's verified role is transfer (per-bench, above) plus memory
 savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
-tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
+tax. Residual confounds disclosed: +24\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
 
 Overfitting dynamics are strikingly consistent: eval-loss spikes at epoch 3 in
