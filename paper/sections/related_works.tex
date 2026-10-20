@@ -43,7 +43,11 @@ temperature-transfer measurement. Small-model precedents include distillation fr
 labels~\cite{distilljev2026}. Head-to-head benchmarking finds small decision
 models beating small generative ones on knowledge tasks while losing on
 math~\cite{jevbench2026}, which bounds where our 350M claims apply: intent
-and routing taxonomies, not reasoning benchmarks. Companion efforts cover
+and routing taxonomies, not reasoning benchmarks. We disclose that classic
+few-shot intent baselines---ConvFiT, SetFit, and zero-shot NLI/embedding
+classifiers---were not run: our only trained-vs-untrained comparisons are
+against our own fine-tuned ModernBERT encoder and a zero-shot embedding
+baseline, so no claim is made against the few-shot literature. Companion efforts cover
 moderation confidence benchmarking~\cite{modbench2026}, meta-encoding and
 knowledge-tracing variants~\cite{metaenc2026,jevkt2026}. Option-order sensitivity
 motivates schema augmentation as a treatment~\cite{pezeshkpour2024option}.

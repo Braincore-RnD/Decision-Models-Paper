@@ -56,9 +56,11 @@ Augmentation's transfer credit is now measured per bench. Canonical (A) LOTO
 training gives BANKING77 35.4\% [31--39] and CLINC150 54.8\% [50--59]
 (500 items each, 2\,000 bootstraps; dumps
 \texttt{docs/eval/kaggle/A-loto/}) against augmented (E) LOTO transfer of
-44\% [38--47] and 55.6\%: augmentation buys $+$8.6\,pt on BANKING77 (CIs
-nearly disjoint) and nothing on CLINC150. The headline ``augmentation buys
-transfer'' holds per-bench only.
+ 44\% [38--47] and 55.6\%: augmentation buys $+$8.6\,pt on BANKING77 (CIs
+ nearly disjoint; McNemar exact paired $p{=}0.0001$, $\chi^2{=}14.3$,
+ $n{=}500$, dump \texttt{docs/eval/paired/results.json}) and nothing on
+ CLINC150 (no per-item E dump archived, so no paired test there). The headline ``augmentation buys
+ transfer'' holds per-bench only.
 
 \begin{table}[htbp]
 \caption{Transfer accuracy with baselines and paraphrase robustness (median
@@ -256,8 +258,9 @@ wording-robustness grid above.
 
 A fine-tuned encoder baseline (ModernBERT-base, 149M, same official tests,
 run by us) splits the comparison (Table~\ref{tab:encoder}): the encoder wins
-CLINC150 (72.8 vs 67.6) and BANKING77 (77.0 vs 75.6); we win typed (58.8 vs
-48.8). Both beat zero-shot embedding in-distribution, and our calibration is far tighter (ECE
+CLINC150 (72.8 vs 67.6; McNemar exact paired $p{<}0.0001$, $n{=}5\,500$) and
+BANKING77 (77.0 vs 75.6; $p{=}0.08$, not significant at 5\%, $n{=}3\,080$);
+we win typed (58.8 vs 48.8). Both beat zero-shot embedding in-distribution, and our calibration is far tighter (ECE
 0.026--0.090 vs 0.158--0.215)---the decision head buys uncertainty quality,
 not raw accuracy.
 
@@ -265,7 +268,10 @@ A same-recipe dense backbone sharpens the hybrid claim both ways
 (Table~\ref{tab:dense}): SmolLM2-360M-Instruct under recipe E loses in-distribution
 (typed-ext 0.5195 vs 0.549, $-$3\,pt) but wins transfer on 500-subsets
 (BANKING77 77.2\% [73.6--80.8] vs 75.6 full-test; CLINC150 70.8\% [66.8--74.8]
-vs 67.6). The nuance: hybrid in-distribution, dense transfer.
+vs 67.6). Neither subset gap survives a paired test against the matched
+hybrid 500-subset (McNemar exact $p{=}0.19$ BANKING77, $p{=}0.70$ CLINC150,
+$n{=}500$ each): the ``dense wins transfer'' reading is seed/subset noise,
+not evidence. The nuance: hybrid in-distribution, dense transfer.
 
 \begin{table}[htbp]
 \caption{Full-test accuracy \% [95\% CI]: ours (E, 350M) vs fine-tuned

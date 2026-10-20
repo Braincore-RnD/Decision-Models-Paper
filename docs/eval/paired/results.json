@@ -1,0 +1,57 @@
+{
+ "loto_bank_A_vs_E": {
+  "n": 500,
+  "A_canon_acc": 0.354,
+  "E_aug_acc": 0.434,
+  "b_A_canon_only": 33,
+  "c_E_aug_only": 73,
+  "chi2_cc": 14.349,
+  "p_asymp": 0.0002,
+  "p_exact": 0.0001
+ },
+ "loto_clinc_A_vs_E": {
+  "n/a": "E LOTO-clinc per-item dump not archived"
+ },
+ "fulltest_bank_ours_vs_enc": {
+  "n": 3080,
+  "ours_E_acc": 0.7555,
+  "modernbert_acc": 0.7698,
+  "b_ours_E_only": 271,
+  "c_modernbert_only": 315,
+  "chi2_cc": 3.155,
+  "p_asymp": 0.0757,
+  "p_exact": 0.0756,
+  "note": "80 rows differ in label-string normalisation only; paired by row index"
+ },
+ "fulltest_clin_ours_vs_enc": {
+  "n": 5500,
+  "ours_E_acc": 0.6764,
+  "modernbert_acc": 0.728,
+  "b_ours_E_only": 463,
+  "c_modernbert_only": 747,
+  "chi2_cc": 66.189,
+  "p_asymp": "<0.0001",
+  "p_exact": "<0.0001",
+  "note": "gold order identical"
+ },
+ "subset_bank_hybrid_vs_dense": {
+  "n": 500,
+  "hybrid_LFM_acc": 0.796,
+  "dense_SmolLM2_acc": 0.772,
+  "b_hybrid_LFM_only": 41,
+  "c_dense_SmolLM2_only": 29,
+  "chi2_cc": 1.729,
+  "p_asymp": 0.1886,
+  "p_exact": 0.1882
+ },
+ "subset_clin_hybrid_vs_dense": {
+  "n": 500,
+  "hybrid_LFM_acc": 0.698,
+  "dense_SmolLM2_acc": 0.708,
+  "b_hybrid_LFM_only": 50,
+  "c_dense_SmolLM2_only": 55,
+  "chi2_cc": 0.152,
+  "p_asymp": 0.6963,
+  "p_exact": 0.6965
+ }
+}

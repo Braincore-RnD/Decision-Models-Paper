@@ -209,4 +209,7 @@ paper/*.out
 paper/*.blg
 paper/*.bbl
 paper/*.aux
+paper/*.log
+paper/*.pdf
+paper/*.zip
 .DS_Store
