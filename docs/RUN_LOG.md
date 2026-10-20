@@ -183,6 +183,14 @@ Catatan: `external_test` = typed-test in-dist (bukan bench LOTO);
 MAX_DECISIONS tak aktif (rows 20400 < 31754) → confound +25% tetap ada, disclose.
 Ablasi in-dist 3-seed (typed-test ext): A 0.563±0.033 vs E 0.549±0.011 —
 selisih 1.4pt < spread A sendiri (7.6pt). Klaim "canonical wins" TAK TAHAN (#7).
+
+## 9. Run #15/#16 — LFM2-700M recipe-E (2026-10-19, ~4h GPU)
+
+`lfm-decs1-v7-700m`: MODEL_ID 700M, lainnya identik E-seed3407.
+ext 0.583 / int 0.7644 / ECE 0.065; eval_loss 0.577→0.596→0.718 (best ep-1!).
+vs E-350M 0.549±0.011: +3.4pt dari 2× parameter — capacity bantu sedikit,
+tapi gap ke Qwen-0.8B vendor (73%) tetap 15pt → klaim "architectural capacity,
+not recipe" TAK TAHAN penuh (#16); recipe+scale tak tutup gap.
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
