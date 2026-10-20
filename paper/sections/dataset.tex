@@ -51,12 +51,29 @@ Total & 30\,000 & \\
 Augmentation (treatment E) applies option subsampling and shuffling (wide
 taxonomies capped at 24 options), instruction paraphrasing, and derived binary
 (noul) questions. Treatment A disables all augmentation (canonical schemas).
-With augmentation the same row budget yields more decisions (39\,560 vs
-31\,754), a residual we disclose rather than hide.
+Counts below distinguish \textit{rows} (sampled mixture records) from
+\textit{decisions} (rendered questions after augmentation): at the same
+28\,000-row budget, E yields 40\,306 decisions vs 32\,500 for A (746 skipped
+per run, logged in \texttt{run\_meta.json}), a residual we disclose rather
+than hide.
 
 \subsection{Decontamination and Splits}
 All rows are decontaminated against canonical test splits with 13-gram shingle
-matching before training. Items are split train/calibration/test with fixed
+matching before training. Decontamination uses Unsloth's 13-gram shingle
+filter against the canonical test splits (typed-decisions full test plus
+500-item subsamples, seed 3407, of BANKING77 and CLINC150). We disclose two
+limitations. First, 75.3\% of BANKING77 and 89.3\% of CLINC150 test
+utterances are shorter than 13 words, where the filter degrades to
+whole-string exact matching (verified against the library source):
+paraphrases and near-duplicates pass through. A post-hoc TF-IDF audit
+(cosine $\geq$ 0.9, CPU) finds 502/3,080 (16.3\%) BANKING77 and 440/5,500
+(8.0\%) CLINC150 test utterances with a near-duplicate in the corresponding
+train pool, and cross-taxonomy leakage is negligible ($\leq$18 items per
+direction). Second, only 500 of 3,080/5,500 test items enter the filter,
+leaving $\sim$84--91\% of test shingles uncovered. LOTO runs remove the
+held-out taxonomy's source entirely (train and test), so the residual leakage
+($\sim$0.8\% of intent-train rows) cannot explain the transfer numbers; we
+did not retrain and instead report this audit as a bound. Items are split train/calibration/test with fixed
 seeds; temperature scaling is fit on calibration only, verdicts on held-out
 tests. For leave-one-taxonomy-out (LOTO) runs, every row, label definition, and
 augmentation variant of the held-out taxonomy is removed from training. Render skips are counted, not silent:
