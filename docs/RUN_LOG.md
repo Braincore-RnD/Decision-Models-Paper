@@ -216,6 +216,13 @@ angka full yang jujur.
 Cal-1k (500 bank + 500 clinc train rows): TS T=1.72 → ECE bank 0.119→0.039,
 transfer ke clinc 0.091→0.048. #19 TERPENUHI (cal≥1k + CI + transfer).
 OOS GAGAL (bug: 1000 iterasi pertama tak mengandung oos) → rerun dengan filter.
+
+## 12. #15 — SmolLM2-360M recipe-E (2026-10-20, ~4h GPU)
+
+`lfm-decs1-v7-smollm2`: HuggingFaceTB/SmolLM2-360M-Instruct, lainnya identik E.
+ext 0.5195 / int 0.7356 / ECE 0.105; eval_loss 0.629→0.572→0.591 (best ep-2).
+vs LFM-350M 0.549: dense se-ukuran KALAH 3pt → klaim hybrid TAHAN (#15).
+Eval BANK/CLINC transfer SmolLM menyusul bila kuota cukup.
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
