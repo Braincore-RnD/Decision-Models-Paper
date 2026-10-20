@@ -223,6 +223,16 @@ OOS GAGAL (bug: 1000 iterasi pertama tak mengandung oos) → rerun dengan filter
 ext 0.5195 / int 0.7356 / ECE 0.105; eval_loss 0.629→0.572→0.591 (best ep-2).
 vs LFM-350M 0.549: dense se-ukuran KALAH 3pt → klaim hybrid TAHAN (#15).
 Eval BANK/CLINC transfer SmolLM menyusul bila kuota cukup.
+
+## 13. Transfer SmolLM + OOS slice (2026-10-20, ~1.5h GPU, kuota 27.29/30h)
+
+SmolLM transfer-500: BANK 77.2% [73.6–80.8], CLINC 70.8% [66.8–74.8]
+(`docs/eval/kaggle/smollm2/`) — vs LFM-E full 75.6/67.6: dense MENANG
+transfer 1.6/3.2pt meski kalah in-dist 3pt. Nuansa #15: hybrid in-dist,
+dense transfer.
+OOS (`docs/eval/kaggle/E-oos/oos13.json`, n=1000): abstain@0.5 = 335/1000
+(33.5%), mean max_prob 0.637 → model overconfident di OOS. #13 LENGKAP
+(full + OOS).
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
