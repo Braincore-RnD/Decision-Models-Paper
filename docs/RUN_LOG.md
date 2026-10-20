@@ -206,6 +206,16 @@ Eval `predict_dump` 500 rows/bench, skor `score_preds --boot 2000`
 
 BANK +8.6pt (CI nyaris tak overlap) → augmentasi BENAR membeli transfer di
 banking. CLINC imbang → klaim headline TAHAN PARSIAL, tulis per-bench di naskah.
+
+## 11. #13 full-test + #19 cal-1k (2026-10-20, eval Kaggle GPU ~1h)
+
+E-seed3407 (`itsdevice/lfm-decs1-E-seed3407`), `docs/eval/kaggle/E-full/`.
+Full-test: BANK 75.6% [74.1–77.0] n=3080, CLINC 67.6% [66.3–68.9] n=5500 —
+TURUN ~5pt dari subsample-500 (81.3/72.9): sampling bias terkonfirmasi,
+angka full yang jujur.
+Cal-1k (500 bank + 500 clinc train rows): TS T=1.72 → ECE bank 0.119→0.039,
+transfer ke clinc 0.091→0.048. #19 TERPENUHI (cal≥1k + CI + transfer).
+OOS GAGAL (bug: 1000 iterasi pertama tak mengandung oos) → rerun dengan filter.
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
