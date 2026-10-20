@@ -12,13 +12,11 @@ against vendor-reported numbers only, clearly labeled, since rerunning 9--27B
 models is outside a T4 protocol.
 
 \subsection{Which RLCD?}
-We use RLCD as \textit{Reinforcement Learning for Calibrated Decisions}
-(TypeSafe/Cloudflare: RL with a proper-scoring-rule reward). This is unrelated
-to Yang et~al.'s \textit{Reinforcement Learning from Contrastive
-Distillation}~\cite{yang2024rlcd}, which generates preference pairs without a
-calibration objective. Shared acronym only. Analysis of RLCD variance and the
-\textit{calibrate, then reinforce} paradigm appears
-in~\cite{gao2026openjev,guo2026jevalign}.
+ We use RLCD as \textit{Reinforcement Learning for Calibrated Decisions}
+ (TypeSafe/Cloudflare: RL with a proper-scoring-rule reward), unrelated to
+ Yang et~al.'s contrastive-distillation variant~\cite{yang2024rlcd}; the
+ reference-KL term defaults to zero and is unused here, so RLCD is a
+ hypothesis for future work, not a method used in this paper.
 
 \subsection{Calibration and Selective Classification}
 A scoring rule is strictly proper if truth-telling uniquely maximizes the
@@ -30,13 +28,18 @@ abstention via coverage and selective risk~\cite{geifman2017selective}; our
 coverage-at-risk metric follows that line.
 
 \subsection{Zero-Shot Decision Benchmarks}
-TypedBench proposes accuracy, paraphrase robustness, calibration against a
+Our intent benches are BANKING77~\cite{casanueva2020banking77} (77 intents,
+banking) and CLINC150~\cite{larson2019clinc150} (150 intents plus
+out-of-scope). TypedBench proposes accuracy, paraphrase robustness, calibration against a
 finite-sample noise floor, and selective prediction for decision
 models~\cite{typedbench2026}; we borrow its paraphrase-grid and selective
 protocol. System Switch shows accuracy, ECE, and error-detection AUROC are
 distinct quantities, with deferral gain tracking AUROC
 ($\rho=0.87$)~\cite{systemswitch2026}---exactly the dissociation we observe
-under shift. Small-model precedents include distillation from System-One
+under shift. Calibration degradation under dataset shift is documented
+since~\cite{ovadia2019trust}; our shift slice adds the matched-recipe
+dissociation (AUROC intact while ECE collapses) plus a calibrated
+temperature-transfer measurement. Small-model precedents include distillation from System-One
 labels~\cite{distilljev2026}. Head-to-head benchmarking finds small decision
 models beating small generative ones on knowledge tasks while losing on
 math~\cite{jevbench2026}, which bounds where our 350M claims apply: intent

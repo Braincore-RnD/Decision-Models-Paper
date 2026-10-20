@@ -4,21 +4,32 @@ routers, paying $O(T)$ sequential decoding cost and returning uncalibrated
 confidences. System-One decision models instead map a state and a typed schema
 to probabilities in a single forward pass. We adapt
 LiquidAI LFM2.5-350M, a hybrid convolution-attention model, into a decision
-engine with a cross-attention JointSchemaHead trained via QLoRA. Across seven
-controlled training runs and six evaluation kernels we find: (1) leave-one-
-taxonomy-out transfer is substantial but partial---43.4\% on BANKING77 and
-55.6\% on CLINC150 against untrained-head baselines of 2.4\%/17.2\% (uniform
-chance 1.3\%/0.67\%), versus 81.3\%/72.9\% in-distribution
-means over three seeds---but at or below a zero-shot embedding baseline
-(68.0\%/56.9\% full-test with no training); (2) an earlier 36\%\,$\to$\,83\% augmentation jump was a
-context-truncation confound, not semantic robustness: with row-matched budgets,
-canonical training wins in-distribution (86\%/84\% vs 80\%/70\%) while
-augmentation coincides with transfer and memory savings; (3) calibration does not
-transfer---ECE rises from 0.026 in-distribution to 0.366 under shift, and
-in-distribution temperatures recover only part of it (0.220 vs 0.104 oracle)---yet
-error-detection (AUROC 0.87\,$\to$\,0.73) survives, and realistic autonomous
-coverage collapses from 63\% to near zero. All checkpoints, dumps, and logs are
-archived for reproduction.
+ engine with a cross-attention JointSchemaHead trained via QLoRA. Across ten
+ controlled training runs and eight evaluation dumps we find: (1) leave-one-
+ taxonomy-out transfer is substantial but partial---43.4\% [39--48] on BANKING77 and
+ 55.6\% on CLINC150 against untrained-head baselines of 2.4\%/17.2\% (uniform
+ chance 1.3\%/0.67\%), versus 81.3\%/72.9\% in-distribution
+ means over three seeds---but at or below a zero-shot embedding baseline
+ (68.0\%/56.9\% full-test with no training); with canonical (unaugmented)
+ training the held-out numbers are 35.4\% [31--39] and 54.8\% [50--59], so
+ augmentation buys $+$8.6\,pt on BANKING77 (CIs nearly disjoint) and nothing on
+ CLINC150; (2) an earlier 36\%\,$\to$\,83\% augmentation jump was a
+ context-truncation confound, not semantic robustness: row-matched ablation is
+ a null result (typed-ext 0.563$\pm$0.033 vs 0.549$\pm$0.011, a 1.4\,pt gap
+ inside 7.6\,pt seed spread), so in-distribution canonical and augmented
+ training are indistinguishable from seed noise; augmentation's verified role
+ is transfer plus memory savings; (3) calibration does not
+ transfer---ECE rises from 0.026 in-distribution to 0.366 under shift, and
+ in-distribution temperatures recover only part of it (0.220 vs 0.104 oracle)---yet
+ error-detection (AUROC 0.87\,$\to$\,0.73) survives, and realistic autonomous
+ coverage collapses from 63\% to near zero. On the official full tests recipe E
+ gives BANKING77 75.6\% [74.1--77.0] (3\,080) and CLINC150 67.6\% [66.3--68.9]
+ (5\,500), $\sim$5\,pt below the 500-subsets; a 1\,000-item calibration slice
+ with temperature $T{=}1.72$ cuts ECE 0.119\,$\to$\,0.039 on BANKING77 and
+ transfers to CLINC150 (0.091\,$\to$\,0.048); 1\,000 OOS utterances abstain
+ 33.5\% [30.6--36.5] of the time at $\tau{=}0.5$ with mean max-probability
+ 0.637, i.e.\ overconfident out of scope. All checkpoints, dumps, and logs are
+ archived for reproduction.
 \end{abstract}
 
 \begin{IEEEkeywords}

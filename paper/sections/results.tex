@@ -2,8 +2,8 @@
 \label{sec:results}
 \subsection{In-Distribution: Three Seeds}
 On identical tests, the base recipe gives typed-decisions 55.9/53.3/55.6
-(mean 54.9), BANKING77 76.8/83.4/83.8 (mean 81.3), and CLINC150
-68.2/76.6/73.8 (mean 72.9). Seed spread on BANKING77 (76.8 vs $\sim$83.5) is
+(mean 54.9$\pm$1.2), BANKING77 76.8/83.4/83.8 (mean 81.3$\pm$3.2), and CLINC150
+68.2/76.6/73.8 (mean 72.9$\pm$3.5; population std, $n{=}3$). Seed spread on BANKING77 (76.8 vs $\sim$83.5) is
 exactly why single-seed reporting is insufficient. Untrained-head baselines
 (backbone + random head) sit at 30.6\%/2.4\%/17.2\%---far above uniform chance
 (1.3\% for 77 classes, 0.67\% for 150), evidence of a lexical prior that works
@@ -40,16 +40,25 @@ is partial versus 81.3\%/72.9\% in-distribution---and against the honest
 zero-shot floor it is weak: cosine similarity with bge-small over label names
 alone (no training, no descriptions) reaches 68.0\% on full BANKING77 and
 56.9\% on full CLINC150, i.e.\ at or above our transfer numbers (43.4/55.6).
-The model beats that baseline only in-distribution (80.6/69.4 full-test).
+The model beats that baseline only in-distribution (75.6/67.6 full-test).
 Subset draws use the same seed value with different samplers, so subset
 comparisons are approximate; full-test ones are exact.
 
 Transfer is wording-robust, not prompt luck: a grid of canonical plus 2
 variants (instruction
-rewording plus option-order shuffling) moves LOTO BANKING77 only across
+rewording plus option-order shuffling; intent benches only---typed records
+carry fixed 5-question schemas and are not paraphrased) moves LOTO BANKING77 only across
 42.2--43.6\% (median 42.8\%) and LOTO CLINC150 across 55.6--57.0\%, while
 in-distribution A holds 86.0--86.4\% on BANKING77. Ranges this tight mean the
 effect lives in schema semantics, not phrasing.
+
+Augmentation's transfer credit is now measured per bench. Canonical (A) LOTO
+training gives BANKING77 35.4\% [31--39] and CLINC150 54.8\% [50--59]
+(500 items each, 2\,000 bootstraps; dumps
+\texttt{docs/eval/kaggle/A-loto/}) against augmented (E) LOTO transfer of
+44\% [38--47] and 55.6\%: augmentation buys $+$8.6\,pt on BANKING77 (CIs
+nearly disjoint) and nothing on CLINC150. The headline ``augmentation buys
+transfer'' holds per-bench only.
 
 \begin{table}[htbp]
 \caption{Transfer accuracy with baselines and paraphrase robustness (median
@@ -76,7 +85,7 @@ Zero-shot embedding (full) & 68.0 & 56.9 \\
 \end{center}
 \end{table}
 
-\subsection{Ablation: The Truncation Confound}
+\subsection{Ablation: A Null Result}
 Row-matched canonical (A) vs full-augmentation (E) training gives:
 
 \begin{table}[htbp]
@@ -102,14 +111,19 @@ E augmented & 59\% [57--61] & 80\% [76--83] & 70\% [66--74] \\
 An earlier 36\%\,$\to$\,83\% jump attributed to augmentation was a context
 truncation confound: training at 2\,048 tokens cut wide schemas, and
 augmentation's option subsampling merely made them fit. With fitting context,
-canonical training wins in-distribution; augmentation coincides with transfer plus memory
+the in-distribution comparison is a null result: three-seed typed-ext gives A
+0.563$\pm$0.033 vs E 0.549$\pm$0.011, a 1.4\,pt gap inside A's own 7.6\,pt
+seed spread---indistinguishable from seed noise, so ``canonical wins'' does
+not hold. Augmentation's verified role is transfer (per-bench, above) plus memory
 savings (full 77/150-option schemas OOM at batch 8 on T4) at a small in-domain
 tax. Residual confounds disclosed: +25\% decisions for E (biasing toward E) and
 batch 4 vs 8 at equal effective size 32.
 
 Overfitting dynamics are strikingly consistent: eval-loss spikes at epoch 3 in
 every fully-logged run, so the restored best checkpoint is epoch 1 or 2, never
-3 (Table~\ref{tab:overfit}; Figure~\ref{fig:loss}).
+3 (Table~\ref{tab:overfit}; Figure~\ref{fig:loss}). The 700M run is the
+exception that sharpens the rule: best at epoch 1 (0.577\,$\to$\,0.596\,$\to$\,0.718),
+so capacity shifts the peak one epoch earlier.
 
 \begin{table}[htbp]
 \caption{Eval-loss at epochs 1--3 (best checkpoint underlined; all seven runs).}
@@ -154,19 +168,27 @@ accuracy, selective quality degrades too: AURC rises from 0.053
 in-distribution to 0.389 under shift on BANKING77 (CLINC150: 0.106 vs 0.144).
 Within a single model (LOTO-banking), ECE rises from 0.176 on in-distribution
 CLINC150 to 0.366 on the held-out taxonomy---the apples-to-apples shift pair.
+With a 1\,000-item calibration slice (500 BANKING77 plus 500 CLINC150 train
+rows, dump \texttt{docs/eval/kaggle/E-full/cal1k.json}), temperature
+$T{=}1.72$ cuts ECE 0.119\,$\to$\,0.039 on BANKING77 and transfers to
+CLINC150 (0.091\,$\to$\,0.048, oracle 0.049): at cal-1k scale the scaler
+transfers where the lean-split scaler only partially did.
 
 \subsection{Full Tests, OOS, and Latency}
 On the official full tests, recipe E gives typed 58.8\% [53.9--63.5] (400),
-BANKING77 \textbf{80.6\%} [79.1--81.9] (3\,080), and CLINC150 \textbf{69.4\%}
-[68.2--70.6] (5\,500), with in-scope CLINC150 at 79.6\% [78.4--80.8]
-(Table~\ref{tab:full}; Wilson 95\% intervals). The full-test numbers track the
-500-subset means (79.6/69.8), so subset rankings transfer. But 1\,000 OOS
-utterances are routed to the \texttt{oos} label only \textbf{23.5\%}
-[21.0--26.2] of the time---in-scope accuracy overstates deployment autonomy
-where OOS must escalate.
+BANKING77 \textbf{75.6\%} [74.1--77.0] (3\,080), and CLINC150 \textbf{67.6\%}
+[66.3--68.9] (5\,500), with in-scope CLINC150 at 75.9\% [74.7--77.2]
+(Table~\ref{tab:full}; bootstrap 95\% intervals, dump
+\texttt{docs/eval/kaggle/E-full/full13.json}). The full-test numbers sit
+$\sim$5\,pt below the 500-subset means (81.3/72.9): the subsets flattered the
+model, and the full tests are the honest numbers. On the 1\,000-utterance OOS
+slice (dump \texttt{docs/eval/kaggle/E-oos/oos13.json}), abstention at
+$\tau{=}0.5$ is only \textbf{33.5\%} [30.6--36.5] with mean max-probability
+0.637---the model is overconfident out of scope, so in-scope accuracy
+overstates deployment autonomy where OOS must escalate.
 
 \begin{table}[htbp]
-\caption{Recipe E on official full tests (Wilson 95\% CI).}
+\caption{Recipe E on official full tests (bootstrap 95\% CI, 2\,000 resamples).}
 \label{tab:full}
 \begin{center}
 \setlength{\tabcolsep}{4pt}
@@ -176,10 +198,10 @@ where OOS must escalate.
 Bench & n & Accuracy \\
 \midrule
 typed-decisions & 400 & 58.8 [53.9--63.5] \\
-BANKING77 & 3\,080 & 80.6 [79.1--81.9] \\
-CLINC150 & 5\,500 & 69.4 [68.2--70.6] \\
-CLINC150 in-scope & 4\,500 & 79.6 [78.4--80.8] \\
-CLINC150 OOS recall & 1\,000 & 23.5 [21.0--26.2] \\
+BANKING77 & 3\,080 & 75.6 [74.1--77.0] \\
+CLINC150 & 5\,500 & 67.6 [66.3--68.9] \\
+CLINC150 in-scope & 4\,500 & 75.9 [74.7--77.2] \\
+CLINC150 OOS abstain@0.5 & 1\,000 & 33.5 [30.6--36.5] \\
 \bottomrule
 \end{tabular}
 \end{small}
@@ -213,8 +235,8 @@ gold label, hence the accuracy collapse.}
 Setting & ms/row & Peak mem & Acc \\
 \midrule
 typed (5q/row) & 139--148 & 0.6\,GB & 58.8 \\
-BANKING77 (77) & 245--288 & 1.2\,GB & 79.6--80.6 \\
-CLINC150 (150) & 515--518 & 2.3\,GB & 69.4--69.8 \\
+BANKING77 (77) & 245--288 & 1.2\,GB & 75.6 \\
+CLINC150 (150) & 515--518 & 2.3\,GB & 67.6 \\
 BANK top-8 & 134 & 0.5\,GB & 9.6 \\
 BANK top-24 & 116 & 0.5\,GB & 28.8 \\
 ModernBERT BANK (77) & 102 & 1.2\,GB & 77.0 \\
@@ -234,11 +256,16 @@ wording-robustness grid above.
 
 A fine-tuned encoder baseline (ModernBERT-base, 149M, same official tests,
 run by us) splits the comparison (Table~\ref{tab:encoder}): the encoder wins
-CLINC150 (72.8 vs 69.4), we win BANKING77 (80.6 vs 77.0) and typed (58.8 vs
-48.8). Both beat zero-shot embedding in-distribution, both collapse OOS
-recall to the same 23--24\%, and our calibration is far tighter (ECE
+CLINC150 (72.8 vs 67.6) and BANKING77 (77.0 vs 75.6); we win typed (58.8 vs
+48.8). Both beat zero-shot embedding in-distribution, and our calibration is far tighter (ECE
 0.026--0.090 vs 0.158--0.215)---the decision head buys uncertainty quality,
 not raw accuracy.
+
+A same-recipe dense backbone sharpens the hybrid claim both ways
+(Table~\ref{tab:dense}): SmolLM2-360M-Instruct under recipe E loses in-distribution
+(typed-ext 0.5195 vs 0.549, $-$3\,pt) but wins transfer on 500-subsets
+(BANKING77 77.2\% [73.6--80.8] vs 75.6 full-test; CLINC150 70.8\% [66.8--74.8]
+vs 67.6). The nuance: hybrid in-distribution, dense transfer.
 
 \begin{table}[htbp]
 \caption{Full-test accuracy \% [95\% CI]: ours (E, 350M) vs fine-tuned
@@ -251,12 +278,33 @@ ModernBERT-base (149M) vs zero-shot embedding.}
 \toprule
 Model & BANK77 & CLINC150 & typed \\
 \midrule
-Ours E & 80.6 [79--82] & 69.4 [68--71] & 58.8 [54--64] \\
+Ours E & 75.6 [74--77] & 67.6 [66--69] & 58.8 [54--64] \\
 ModernBERT & 77.0 [76--78] & 72.8 [72--74] & 48.8 [44--54] \\
 Embedding & 68.0 & 56.9 & --- \\
 \bottomrule
 \end{tabular}
 \end{small}
+\end{center}
+\end{table}
+
+\begin{table}[htbp]
+\caption{Same recipe E, hybrid vs dense at $\sim$350M. In-dist: typed-ext.
+Transfer: 500-subsets with bootstrap CI (dump
+\texttt{docs/eval/kaggle/smollm2/}). Starred cells are full-test; SmolLM2
+transfer is 500-subset, flattering dense by the $\sim$5\,pt subset bias.}
+\label{tab:dense}
+\begin{center}
+\setlength{\tabcolsep}{3pt}
+\begin{footnotesize}
+\begin{tabular}{lccc}
+\toprule
+Backbone & typed-ext & BANK77 & CLINC150 \\
+\midrule
+LFM-350M (hybrid) & 0.549 & 75.6 [74--77]$^*$ & 67.6 [66--69]$^*$ \\
+SmolLM2-360M (dense) & 0.520 & 77.2 [74--81] & 70.8 [67--75] \\
+\bottomrule
+\end{tabular}
+\end{footnotesize}
 \end{center}
 \end{table}
 
@@ -364,11 +412,16 @@ Laya* (F1) & 421M & 14.3 & 3.2 & --- \\
 \end{table}
 
 \subsection{Capacity Frontier}
-Typed-decisions plateaus at 54--59\% across all seven runs while Qwen3.5-0.8B
+Typed-decisions plateaus at 54--59\% across all runs while Qwen3.5-0.8B
 reports 73\%: unlike single wide taxonomies (handled well even at 150
 classes), its records demand up to five interdependent judgments per state
-(risk, review need, routing) that stretch 16 layers at width 1\,024. The gap
-is architectural capacity, not recipe, and it bounds deployment scope to
+(risk, review need, routing) that stretch 16 layers at width 1\,024. The same
+recipe on LFM2-700M gives typed-ext 0.583 vs 0.549$\pm$0.011 at 350M
+($+$3.4\,pt from 2$\times$ parameters), yet the gap to the vendor-reported
+Qwen 73\% stays $\sim$15\,pt: scale helps a little but recipe plus scale does
+not close the gap, so ``architectural capacity, not recipe'' does not hold as
+stated. The honest bound is narrower: at fixed recipe the 350M hybrid tops
+out on joint multi-field reasoning, bounding deployment scope to
 single-question routing rather than joint multi-field reasoning.
 
 \subsection{Discussion}
@@ -402,7 +455,8 @@ v3 & v2, typed $2\times$ & 57 & 70 & 61 \\
 \end{table}
 
 For practitioners: fit schemas
-in context first (truncation dwarfs recipe effects), buy augmentation for transfer and memory rather than in-domain
+in context first (truncation dwarfs recipe effects), buy augmentation for
+per-bench transfer and memory rather than in-domain
 points, and never trust in-distribution temperatures under shift. Deploy with
 an escalation policy
 \begin{equation}
@@ -416,17 +470,22 @@ with a batch-size confound (4$\times$8 vs 8$\times$4 at equal effective size 32,
 forced by full-schema OOM); rename/paraphrase/derived types are not yet
 separated, so the transfer credit cannot be attributed to one mechanism; no
 same-protocol Qwen rerun exists (vendor numbers are labeled context only);
-OOS recall is measured (23.5\%) but no abstain policy is evaluated,
+OOS abstention is measured (33.5\% at $\tau{=}0.5$, overconfident at mean
+max-probability 0.637) but no abstain policy is tuned,
 macro-F1 leaderboard slices are future work, and 5 of 18 mixture subsets
-remain license-unaudited (Section~3); and the
-\texttt{lfm1.0} license text is still unread, which must precede any release
-claim. How these bound the headline findings: the transfer finding rests on
-augmentation-full LOTO runs only, with no canonical-transfer cell, so the
-transfer credit cannot be attributed to augmentation specifically---and it
+remain license-unaudited (Section~3); and the base model carries the
+\texttt{lfm1.0} license (LiquidAI model card), so our release covers only our
+own artifacts (adapters, heads, dumps, scripts) at
+\url{https://huggingface.co/itsdevice/}, not redistributed base weights. How these bound the headline findings: the transfer finding now rests
+on matched A/E LOTO cells per bench (augmentation buys BANKING77, nothing on
+CLINC)---and it
 sits at or below a zero-shot embedding baseline on both taxonomies, so
 ``substantial'' overstates it; the
-in-distribution canonical win is single-seed with a batch-size confound, so it
+in-distribution comparison is a null result (1.4\,pt inside 7.6\,pt seed
+spread with a batch-size confound), so it
 is consistent with seed noise; the calibration finding holds within matched
-models, with scaler transfer now measured as partial (0.366\,$\to$\,0.220 vs
-0.104 oracle). Each rests
+models, with scaler transfer now measured as partial on lean splits
+(0.366\,$\to$\,0.220 vs
+0.104 oracle) but transferring at cal-1k scale (0.119\,$\to$\,0.039 bank,
+0.091\,$\to$\,0.048 clinc). Each rests
 on fixed test sets with disclosed residuals.
