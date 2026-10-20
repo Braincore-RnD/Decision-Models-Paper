@@ -191,6 +191,21 @@ ext 0.583 / int 0.7644 / ECE 0.065; eval_loss 0.577→0.596→0.718 (best ep-1!)
 vs E-350M 0.549±0.011: +3.4pt dari 2× parameter — capacity bantu sedikit,
 tapi gap ke Qwen-0.8B vendor (73%) tetap 15pt → klaim "architectural capacity,
 not recipe" TAK TAHAN penuh (#16); recipe+scale tak tutup gap.
+
+## 10. Vonis #6 — A-transfer (2026-10-20, eval Kaggle GPU ~0.5h)
+
+Bobot A-LOTO di-push ke HF via kernel CPU (`kernel_sources` attach output train):
+`itsdevice/lfm-decs1-A-loto-banking77`, `itsdevice/lfm-decs1-A-loto-clinc150`.
+Eval `predict_dump` 500 rows/bench, skor `score_preds --boot 2000`
+(`docs/eval/kaggle/A-loto/`):
+
+| | A (none) | E (full) |
+|---|---|---|
+| BANK | 35.4% [31–39] | 44% [38–47] |
+| CLINC | 54.8% [50–59] | 55.6% |
+
+BANK +8.6pt (CI nyaris tak overlap) → augmentasi BENAR membeli transfer di
+banking. CLINC imbang → klaim headline TAHAN PARSIAL, tulis per-bench di naskah.
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 
