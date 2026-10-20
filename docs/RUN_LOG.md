@@ -173,6 +173,66 @@ Overfit ep-3 konsisten di semua run (best selalu ep-2).
 | 3 | `…-seed42-full` | `SEED=42` | typed-ext 55.5; best ep-2 (0.62→1.01) |
 | 4 | `…-loto-banking-full` | `HOLDOUT_TAXONOMY=banking77` | BANKING77 transfer **44% [38–47%]** (eval #9) |
 | 5 | `…-loto-clinc-full` | `HOLDOUT_TAXONOMY=clinc150` | CLINC150 transfer **55.6%** (eval #12, Colab) |
+
+## 8. Run #7 — A-seed41/42 (2026-10-18/19, AUG=none + EVAL_BATCH=2)
+
+A-seed3407 sudah ada (`ablasi-none-full`: BANK 86/CLINC 84 in-dist, ext 0.5925).
+`A-seed41`: ext 0.58, int 0.7376, eval_loss 0.767→0.676→0.8685 (best ep-2).
+`A-seed42`: ext 0.5165, int 0.7071, eval_loss 0.7177→0.6126→0.756 (best ep-2).
+Catatan: `external_test` = typed-test in-dist (bukan bench LOTO);
+MAX_DECISIONS tak aktif (rows 20400 < 31754) → confound +25% tetap ada, disclose.
+Ablasi in-dist 3-seed (typed-test ext): A 0.563±0.033 vs E 0.549±0.011 —
+selisih 1.4pt < spread A sendiri (7.6pt). Klaim "canonical wins" TAK TAHAN (#7).
+
+## 9. Run #15/#16 — LFM2-700M recipe-E (2026-10-19, ~4h GPU)
+
+`lfm-decs1-v7-700m`: MODEL_ID 700M, lainnya identik E-seed3407.
+ext 0.583 / int 0.7644 / ECE 0.065; eval_loss 0.577→0.596→0.718 (best ep-1!).
+vs E-350M 0.549±0.011: +3.4pt dari 2× parameter — capacity bantu sedikit,
+tapi gap ke Qwen-0.8B vendor (73%) tetap 15pt → klaim "architectural capacity,
+not recipe" TAK TAHAN penuh (#16); recipe+scale tak tutup gap.
+
+## 10. Vonis #6 — A-transfer (2026-10-20, eval Kaggle GPU ~0.5h)
+
+Bobot A-LOTO di-push ke HF via kernel CPU (`kernel_sources` attach output train):
+`itsdevice/lfm-decs1-A-loto-banking77`, `itsdevice/lfm-decs1-A-loto-clinc150`.
+Eval `predict_dump` 500 rows/bench, skor `score_preds --boot 2000`
+(`docs/eval/kaggle/A-loto/`):
+
+| | A (none) | E (full) |
+|---|---|---|
+| BANK | 35.4% [31–39] | 44% [38–47] |
+| CLINC | 54.8% [50–59] | 55.6% |
+
+BANK +8.6pt (CI nyaris tak overlap) → augmentasi BENAR membeli transfer di
+banking. CLINC imbang → klaim headline TAHAN PARSIAL, tulis per-bench di naskah.
+
+## 11. #13 full-test + #19 cal-1k (2026-10-20, eval Kaggle GPU ~1h)
+
+E-seed3407 (`itsdevice/lfm-decs1-E-seed3407`), `docs/eval/kaggle/E-full/`.
+Full-test: BANK 75.6% [74.1–77.0] n=3080, CLINC 67.6% [66.3–68.9] n=5500 —
+TURUN ~5pt dari subsample-500 (81.3/72.9): sampling bias terkonfirmasi,
+angka full yang jujur.
+Cal-1k (500 bank + 500 clinc train rows): TS T=1.72 → ECE bank 0.119→0.039,
+transfer ke clinc 0.091→0.048. #19 TERPENUHI (cal≥1k + CI + transfer).
+OOS GAGAL (bug: 1000 iterasi pertama tak mengandung oos) → rerun dengan filter.
+
+## 12. #15 — SmolLM2-360M recipe-E (2026-10-20, ~4h GPU)
+
+`lfm-decs1-v7-smollm2`: HuggingFaceTB/SmolLM2-360M-Instruct, lainnya identik E.
+ext 0.5195 / int 0.7356 / ECE 0.105; eval_loss 0.629→0.572→0.591 (best ep-2).
+vs LFM-350M 0.549: dense se-ukuran KALAH 3pt → klaim hybrid TAHAN (#15).
+Eval BANK/CLINC transfer SmolLM menyusul bila kuota cukup.
+
+## 13. Transfer SmolLM + OOS slice (2026-10-20, ~1.5h GPU, kuota 27.29/30h)
+
+SmolLM transfer-500: BANK 77.2% [73.6–80.8], CLINC 70.8% [66.8–74.8]
+(`docs/eval/kaggle/smollm2/`) — vs LFM-E full 75.6/67.6: dense MENANG
+transfer 1.6/3.2pt meski kalah in-dist 3pt. Nuansa #15: hybrid in-dist,
+dense transfer.
+OOS (`docs/eval/kaggle/E-oos/oos13.json`, n=1000): abstain@0.5 = 335/1000
+(33.5%), mean max_prob 0.637 → model overconfident di OOS. #13 LENGKAP
+(full + OOS).
 | 6 | `…-ablasi-none-full` | `AUG_MODE=none`, 28000 rows (`BATCH=4`, OOM batch 8) | BANK **86** / CLINC **84** (eval #10) |
 | 7 | `…-ablasi-full-full` | `AUG_MODE=full`, 28000 rows | BANK **79** / CLINC **70** (eval #11) |
 

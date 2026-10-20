@@ -1,0 +1,108 @@
+{
+  "bank_test": {
+    "n": 3080,
+    "mean_words": 11.22,
+    "median_words": 9.0,
+    "max_words": 69,
+    "n_lt13": 2319,
+    "pct_lt13": 75.29
+  },
+  "bank_train": {
+    "n": 10003,
+    "mean_words": 12.25,
+    "median_words": 10,
+    "max_words": 84,
+    "n_lt13": 7095,
+    "pct_lt13": 70.93
+  },
+  "clinc_test": {
+    "n": 5500,
+    "mean_words": 8.44,
+    "median_words": 8.0,
+    "max_words": 26,
+    "n_lt13": 4912,
+    "pct_lt13": 89.31
+  },
+  "clinc_train": {
+    "n": 15250,
+    "mean_words": 8.47,
+    "median_words": 8.0,
+    "max_words": 28,
+    "n_lt13": 13583,
+    "pct_lt13": 89.07
+  },
+  "coverage_hole": {
+    "bank_test_total": 3080,
+    "bank_dekon_only": 500,
+    "clinc_test_total": 5500,
+    "clinc_dekon_only": 500,
+    "note": "train script eval_texts = typed full + banking77/clinc150 limit 500 seed 3407"
+  },
+  "exact_bank_train_vs_test": {
+    "hits": 25,
+    "of": 3080,
+    "pct": 0.81
+  },
+  "exact_clinc_train_vs_test": {
+    "hits": 19,
+    "of": 5500,
+    "pct": 0.35
+  },
+  "exact_cross": {
+    "bank_train_vs_clinc_test": 2,
+    "clinc_train_vs_bank_test": 5,
+    "bank_train_vs_bank_test_dup": 25
+  },
+  "exact_typed_train_vs_test": {
+    "hits": 0,
+    "of": 400
+  },
+  "eightgram_bank_train_vs_test": {
+    "hits": 326,
+    "of": 3080,
+    "pct": 10.58
+  },
+  "eightgram_clinc_train_vs_test": {
+    "hits": 165,
+    "of": 5500,
+    "pct": 3.0
+  },
+  "tfidf_bank": {
+    "ge_0.9": {
+      "n": 502,
+      "pct": 16.3
+    },
+    "ge_0.95": {
+      "n": 214,
+      "pct": 6.95
+    },
+    "ge_1.0": {
+      "n": 56,
+      "pct": 1.82
+    },
+    "max_mean": 0.7265
+  },
+  "tfidf_clinc": {
+    "ge_0.9": {
+      "n": 440,
+      "pct": 8.0
+    },
+    "ge_0.95": {
+      "n": 178,
+      "pct": 3.24
+    },
+    "ge_1.0": {
+      "n": 62,
+      "pct": 1.13
+    },
+    "max_mean": 0.6474
+  },
+  "tfidf_banktrain_vs_clinctest": {
+    "ge_0.9": 18,
+    "max_mean": 0.5086
+  },
+  "tfidf_clinctrain_vs_banktest": {
+    "ge_0.9": 17,
+    "max_mean": 0.4795
+  }
+}

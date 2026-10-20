@@ -14,10 +14,7 @@
   \usepackage{graphicx}
 \fi
 \usepackage{color}
-\usepackage{flushend}
-\usepackage{fancyhdr}
 \usepackage{subcaption}
-\usepackage{balance}
 \captionsetup[table]{justification=centering, labelsep=period, font={footnotesize,sc}}
 \captionsetup[figure]{justification=centering, labelsep=period, font={footnotesize}}
 \usepackage{booktabs}
@@ -29,32 +26,9 @@
 \usepackage{tikz}
 
 % =========================
-% Header and Footer (IJACSA)
+% Header and Footer (IEEE conference; venue TBD -- no journal header)
 % =========================
-\renewcommand{\thispagestyle}[2]{} 
-
-\fancypagestyle{plain}{
-    \fancyhead{}
-    \fancyhead[C]{first page center header}
-    \fancyfoot{}
-    \fancyfoot[C]{first page center footer}
-}
-\pagestyle{fancy}
-
-\headheight 22pt
-\footskip 20pt
-
-\rhead{}
-\setcounter{page}{1}
-
-% Header
-\fancyhead[R]{\textit{(IJACSA) International Journal of Advanced Computer Science and Applications, \\ Vol. XXX, No. XXX, 2026}}
-\renewcommand{\headrulewidth}{0pt}
-
-% Footer
-\fancyfoot[C]{www.ijacsa.thesai.org}
-\renewcommand{\footrulewidth}{0.5pt}
-\fancyfoot[R]{\thepage \ $|$ P a g e }
+\pagestyle{plain}
 
 % =========================
 % Title & Author
@@ -124,7 +98,6 @@ Amalan Fadil Gaib\IEEEauthorrefmark{3}
 % =========================
 % References
 % =========================
-\balance
 \bibliographystyle{IEEEtran}
 \bibliography{references}
 
